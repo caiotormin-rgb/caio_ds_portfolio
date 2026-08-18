@@ -90,8 +90,11 @@ def tidy(ax, title=None, sub=None, ylab=None, pad=None):
     ax.set_axisbelow(True); ax.grid(axis="x", visible=False)
     return ax
 
-df = pd.read_csv("../data/candidates/meridian_national_all_channels.csv", parse_dates=["time"])
-df = df.sort_values("time").reset_index(drop=True)
+import importlib.util
+spec = importlib.util.spec_from_file_location("mmm", "../src/01_load.py")
+mmm = importlib.util.module_from_spec(spec); spec.loader.exec_module(mmm)
+mmm.validate()          # every integrity assertion runs before any analysis
+df = mmm.national()
 
 CH      = [f"Channel{i}" for i in range(5)]
 SPEND   = [f"{c}_spend" for c in CH]

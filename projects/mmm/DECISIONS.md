@@ -260,3 +260,20 @@ the data artifacts, the pre-registered analysis plan, the evaluation memo, the
 activation one-pager, and this decision log. Running the demo notebook is not
 the project. Reconfirms the trade-off accepted when the use case was chosen.
 
+## 2026-08-17 — Phase 2 — D1 LOCKED: Meridian national
+Writing `01-data-sources.md` commits the choice. Previously "leaning"; now locked.
+`meridian_national_all_channels.csv` is the primary source;
+`meridian_geo_all_channels.csv` is retained **only** for the D2 Phase 5
+robustness step. Reversible, but reversing it now means rewriting `01`.
+
+## 2026-08-17 — Phase 2 — Ingestion formalised
+`src/01_load.py` replaces the dead R loader. Exposes `national()` / `geo()` and
+asserts on every run: row counts, weekly regularity, panel balance, no missing
+values, expected columns, non-negative spend, positive outcome, and the
+**national == geo-aggregated identity**. That last assertion turns a one-off
+finding into a permanent regression test — if the two files ever stop being the
+same simulation, the notebook fails loudly instead of quietly modelling the wrong
+thing.
+`data/candidates/` renamed to `data/raw/` now that the shortlist is closed.
+The EDA notebook calls `mmm.validate()` before any analysis runs.
+
