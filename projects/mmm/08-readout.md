@@ -12,6 +12,15 @@
 ## The finding
 _One sentence, with the number in it._
 
+## Pre-committed lines — carry these into the readout
+
+**Media-to-media collinearity is a non-issue here: VIF 1.03-1.05.** Worth one
+sentence, because it removes the single most common reason MMMs come out
+unstable — and a reader who works in this field will be looking for it. Say it
+plainly rather than leaving them to assume the usual problem is lurking.
+
+_(Add further pre-committed lines here as Phase 2/3 turn them up.)_
+
 ## Base vs incremental
 ## Contribution by channel
 ## ROI by channel — ranges, never point estimates
