@@ -495,3 +495,38 @@ this was the wrong call and should be reverted.
    model specification rather than from anything observable — which raises the
    stakes on `05-analysis-plan.md` being written before any model is fit.
 
+## 2026-08-18 — Phase 2 — OPEN QUESTION: what is `competitor_sales_control`?
+Caio asked where it comes from in Google's documentation. Checked
+`collect-data`, `basics/model-spec` and `advanced-modeling/control-variables`.
+
+**Finding: it is undocumented.** Google's docs never mention competitor *sales*.
+They give **competitor impressions**, temperature, and Google Query Volume as
+control examples. The simulated datasets ship with **no README, no data
+dictionary** — the repo path holds only `csv/`, `pkl/` and `xlsx/` directories.
+So the column's real-world referent and units are unknown; the name is
+suggestive, not definitional.
+
+**Units problem:** observed values are mean ≈ 0, range −1.95 to +2.13, i.e.
+pre-standardised. But Meridian does **not** population-scale controls by default
+(`control_population_scaling_id` is opt-in, and the docs say competitor
+impressions *should* be scaled). So this column arrived standardised from the
+generator. "Competitor sales" that is z-scored is an index, not sales, and
+nothing anchors it to a real quantity.
+
+**The bigger issue — Meridian's own mediator warning applies here.** From
+`advanced-modeling/control-variables`: *"Mediator variables shouldn't be included
+as control variables, because including them will bias causal inference estimates
+on the treatment variables."* Google's worked example is query volume — a
+mediator for non-search channels, a confounder for search ads.
+We measured `competitor_sales_control` correlating **0.75 with Channel4 spend and
+0.70 with Channel3 spend.** If our media affects competitor sales (share
+capture), it is a mediator and controlling for it destroys part of the media
+effect. If it drives both our media planning and our KPI, it is a confounder and
+omitting it biases the other way. **The data cannot distinguish these, and the
+choice is a modelling assumption that must be stated in `05-analysis-plan.md`.**
+
+**Also noted:** controls enter Meridian linearly with geo-specific coefficients
+(`γ^[C]_{g,i} z_{g,t,i}`, `γ ~ Normal`) — no adstock, no saturation.
+
+**Unresolved.** Belongs in `03-data-quality.md` (Caio's) and forces a decision in `05`.
+
