@@ -16,10 +16,69 @@ C = []
 md = lambda s: C.append(nbf.v4.new_markdown_cell(s.strip()))
 code = lambda s: C.append(nbf.v4.new_code_cell(s.strip()))
 
+# Claude's first-pass observations, consumed in section order by guide().
+# These are ANCHORS TO ARGUE WITH, not answers. Every figure in them was computed
+# from the data. The "Your read" cell below each one stays Caio's.
+OBS = [
+ [  # 1 completeness
+  "Clean: 156 consecutive Monday weeks, no gaps, no duplicates, no missing values, no negative spend, no zero-conversion weeks.",
+  "`revenue_per_conversion` does vary, but trivially — CV 0.076%. Revenue and conversions are interchangeable as an outcome.",
+  "**156 rows is the binding constraint.** Five channels each needing a coefficient, an adstock and a saturation parameter, plus controls and seasonality, puts us near the 10:1 observations-to-parameter guideline — not comfortably above it.",
+ ],
+ [  # 2 outcome
+  "Trend is **+119k conversions/week, about +1.5%/year** — small, but not zero.",
+  "**Seasonality is very mild: month peak/trough is only 1.07.** Unusual for a consumer brand. Little seasonal variance for media to compete with — but also little variance to explain at all.",
+  "Range 340m–491m, max/min 1.44. Residual SD after removing month means is 28m, so most week-to-week movement is *not* seasonal.",
+ ],
+ [  # 3 money split
+  "Concentrated: **C3 TV alone is 40% of paid spend**; C2 OOH is 5.5%.",
+  "Spend/revenue 16.6% — heavy, more DTC than mature CPG.",
+  "C2 is small enough that any ROI on it will carry wide intervals. Worth deciding now what you'll say if it comes back looking like the best channel.",
+ ],
+ [  # 4 flighting
+  "**Only C2 OOH ever goes dark, and only in 2.6% of weeks.** The other four are always-on.",
+  "That matters more than it looks: with no on/off cycling, there is little for a carryover parameter to latch onto. Adstock will be weakly identified almost everywhere.",
+ ],
+ [  # 5 variation
+  "**The smallest channel has the most variation** — C2 OOH: CV 0.87, p90/p10 = 20.3.",
+  "**The largest has the least** — C3 TV: CV 0.31, p90/p10 = 2.26, at 40% of budget.",
+  "That inversion is the central tension: the channel whose budget decision matters most is the one the data can say least about.",
+ ],
+ [  # 6 collinearity
+  "Strongest channel pair is **C2 OOH ↔ C3 TV at 0.70**.",
+  "**But the worse problem is with a control:** C4 Social ↔ competitor_sales is **0.75**, C3 TV ↔ competitor_sales is 0.70. Media is more entangled with the control than with other media.",
+  "Bottom row: every raw media-to-conversions correlation sits between −0.18 and +0.05. A naive analyst reading this chart alone would conclude media does nothing.",
+ ],
+ [  # 7 controls
+  "`competitor_sales_control` is the strongest single relationship with conversions (−0.38) — but it correlates 0.70–0.75 with media, so it is not an independent control.",
+  "`Promo` correlates +0.30 with conversions **and 0.45 with total media spend.** Whose lever is it?",
+  "`sentiment_score_control` is −0.06 with conversions. It may earn no place in the model at all.",
+ ],
+ [  # 8 carryover
+  "**No visible carryover anywhere.** Every cross-correlation across every channel and lag sits within |r| ≤ 0.18.",
+  "Peak lags are scattered (0, 1, 1, 2, 5) with no decay shape — that pattern is what noise looks like, not adstock.",
+  "**Careful:** absence here is not evidence of absence. Raw uncontrolled correlation is a weak instrument, and section 4 already told us the always-on channels give it little to work with.",
+ ],
+ [  # 9 diminishing returns
+  "**No saturation bend is visible in any channel.** The quintile lines are close to flat.",
+  "Three of five slope *downward*: C2 −18m, C4 −14m, C3 −10m from lowest to highest spend quintile.",
+  "Read that as **when the planner spent**, not as media hurting sales. It is the classic confound this chart cannot resolve.",
+ ],
+ [  # 10 spend vs impressions
+  "**CPM is exactly constant per channel** (7.3327 / 9.6412 / 7.4309 / 7.7928 / 7.7919) to floating-point noise.",
+  "So spend and impressions are the same variable in different units — no auction pressure, no audience exhaustion, no seasonal CPM. Real data never looks like this.",
+  "The unit choice is therefore free. But note what it costs the story: nothing here can show rising media costs over time.",
+ ],
+]
+
 def guide(points, refs):
     body = "#### What to look for\n\n" + "\n".join(f"- {p}" for p in points)
     body += "\n\n#### Reference\n\n" + "\n".join(f"- [{t}]({u})" for t, u in refs)
     md(body)
+    if OBS:
+        obs = OBS.pop(0)
+        md("#### Claude's first pass — *anchors to argue with, not answers*\n\n"
+           + "\n".join(f"- {o}" for o in obs))
     C.append(nbf.v4.new_markdown_cell("**Your read:**\n\n"))
 
 # --- reference shorthands (all verified 200) ---------------------------------
@@ -97,6 +156,19 @@ mmm = importlib.util.module_from_spec(spec); spec.loader.exec_module(mmm)
 mmm.validate()          # every integrity assertion runs before any analysis
 df = mmm.national()
 
+# --- channel labels: a DISCLOSED CONVENTION, not a finding (02-data-dictionary.md)
+# Raw identifiers stay canonical everywhere; names are presentation only.
+CHANNEL_NAMES = {
+    "Channel0": "Programmatic display",     # evidence: weak
+    "Channel1": "YouTube / premium video",  # evidence: moderate - only distinctive CPM
+    "Channel2": "Out-of-home",              # evidence: moderate - bursty, dark weeks, Q4 skew
+    "Channel3": "TV / CTV",                 # evidence: moderate - largest, steadiest
+    "Channel4": "Paid social",              # evidence: NONE - assigned, not inferred
+}
+SHORT = {"Channel0": "C0 Display", "Channel1": "C1 Video", "Channel2": "C2 OOH",
+         "Channel3": "C3 TV", "Channel4": "C4 Social"}
+LABEL = lambda c: f"{c} · {CHANNEL_NAMES[c]}"
+
 CH      = [f"Channel{i}" for i in range(5)]
 SPEND   = [f"{c}_spend" for c in CH]
 IMPR    = [f"{c}_impression" for c in CH]
@@ -106,6 +178,15 @@ df["total_spend"] = df[SPEND].sum(axis=1)
 
 print(f"{len(df)} weeks | {df.time.min():%Y-%m-%d} to {df.time.max():%Y-%m-%d}")
 df.head(3)
+""")
+
+md("""
+> **Channel names are a labelling convention, not a finding.** The source ships
+> `Channel0`-`Channel4` with no media type. Names were assigned from behavioural
+> signatures; the evidence is **weak to moderate — and for `Channel4`, none at
+> all**. Raw identifiers stay canonical throughout and names appear only on
+> plots. **No conclusion may rest on a name.** Mapping and evidence grades:
+> `02-data-dictionary.md`.
 """)
 
 md("## 1. Is the data complete and regular?")
@@ -159,7 +240,7 @@ md("## 3. How is the money split across channels?")
 code("""
 tot = df[SPEND].sum().sort_values(ascending=False)
 fig, ax = plt.subplots(figsize=(9, 3.4))
-ax.barh([c.replace("_spend","") for c in tot.index][::-1], (tot/1e6).values[::-1], color=BLUE, height=.62)
+ax.barh([LABEL(c.replace("_spend","")) for c in tot.index][::-1], (tot/1e6).values[::-1], color=BLUE, height=.62)
 for i, v in enumerate((tot/1e6).values[::-1]):
     ax.text(v, i, f"  {v:,.1f}m ({v/(tot.sum()/1e6)*100:.0f}%)", va="center", fontsize=9, color=INK2)
 ax.set_xlim(0, (tot/1e6).max()*1.16)
@@ -185,7 +266,7 @@ fig, axes = plt.subplots(5, 1, figsize=(11, 9), sharex=True)
 for ax, c in zip(axes, CH):
     s = df[f"{c}_spend"]/1e3
     ax.vlines(df.time, 0, s, color=BLUE, linewidth=1.4)
-    tidy(ax, f"{c}  —  {(s==0).mean():.0%} of weeks at zero spend", ylab="Spend (k)")
+    tidy(ax, f"{LABEL(c)}  —  {(s==0).mean():.0%} of weeks at zero spend", ylab="Spend (k)")
 axes[-1].set_xlabel("")
 fig.suptitle("Weekly spend by channel", x=0.005, ha="left", y=1.0, fontsize=12)
 plt.tight_layout(); plt.show()
@@ -205,7 +286,7 @@ v = pd.DataFrame({
     "zero_weeks": (df[SPEND]==0).mean(),
     "p10_p90_ratio": df[SPEND].quantile(.9)/df[SPEND].quantile(.1).replace(0, np.nan),
 })
-v.index = [i.replace("_spend","") for i in v.index]
+v.index = [SHORT[i.replace("_spend","")] for i in v.index]
 
 fig, ax = plt.subplots(1, 2, figsize=(11, 3.4))
 ax[0].bar(v.index, v.cv, color=BLUE, width=.6)
@@ -227,7 +308,7 @@ md("## 6. Are the channels collinear?")
 code("""
 cols = SPEND + ["competitor_sales_control", "sentiment_score_control", "Promo", "conversions"]
 cm = df[cols].corr()
-cm.index = cm.columns = [c.replace("_spend","").replace("_control","") for c in cols]
+cm.index = cm.columns = [SHORT.get(c.replace("_spend",""), c.replace("_spend","").replace("_control","")) for c in cols]
 
 fig, ax = plt.subplots(figsize=(7.6, 6.4))
 im = ax.imshow(cm, cmap=DIVERGING, vmin=-1, vmax=1)
@@ -242,7 +323,7 @@ tidy(ax, "Correlation matrix", "diverging scale, gray = no relationship", pad=22
 fig.colorbar(im, ax=ax, shrink=.72)
 plt.tight_layout(); plt.show()
 
-off = cm.loc[[c.replace("_spend","") for c in SPEND], [c.replace("_spend","") for c in SPEND]]
+off = cm.loc[[SHORT[c.replace("_spend","")] for c in SPEND], [SHORT[c.replace("_spend","")] for c in SPEND]]
 off = off.where(~np.eye(len(off), dtype=bool)).abs().stack()
 print(f"strongest channel-to-channel pair: {off.idxmax()} r = {off.max():.3f}")
 """)
@@ -290,7 +371,7 @@ for ax, c in zip(axes, CH):
     r = [df[f"{c}_spend"].shift(k).corr(df.conversions) for k in LAGS]
     ax.bar(list(LAGS), r, color=BLUE, width=.62)
     ax.axhline(0, color=INK2, linewidth=.8)
-    tidy(ax, c, ylab="corr" if c == "Channel0" else None)
+    tidy(ax, SHORT[c], ylab="corr" if c == "Channel0" else None)
     ax.set_xlabel("lag (weeks)"); ax.grid(axis="x", visible=False)
 fig.suptitle("Cross-correlation: spend at lag k vs conversions today",
              x=0.005, ha="left", y=1.06, fontsize=12)
@@ -316,7 +397,7 @@ for ax, c in zip(axes, CH):
     q = pd.qcut(s, 5, duplicates="drop")
     b = df.groupby(q, observed=True).agg(x=(f"{c}_spend","mean"), y=("conversions","mean"))
     ax.plot(b.x/1e3, b.y/1e6, color=ORANGE, marker="o", markersize=5)
-    tidy(ax, c, ylab="Conversions (m)" if c == "Channel0" else None)
+    tidy(ax, SHORT[c], ylab="Conversions (m)" if c == "Channel0" else None)
     ax.set_xlabel("Spend (k)")
 fig.suptitle("Spend vs conversions, with quintile means (orange)",
              x=0.005, ha="left", y=1.06, fontsize=12)
@@ -335,7 +416,7 @@ fig, axes = plt.subplots(1, 5, figsize=(13, 2.9), sharex=True)
 for ax, c in zip(axes, CH):
     cpm = (df[f"{c}_spend"] / df[f"{c}_impression"].replace(0, np.nan)) * 1000
     ax.plot(df.time, cpm, color=BLUE)
-    tidy(ax, f"{c}  (r={df[f'{c}_spend'].corr(df[f'{c}_impression']):.3f})",
+    tidy(ax, f"{SHORT[c]}  (r={df[f'{c}_spend'].corr(df[f'{c}_impression']):.3f})",
          ylab="Cost per 1k impressions" if c == "Channel0" else None)
     ax.tick_params(axis="x", labelrotation=45, labelsize=7)
 fig.suptitle("Implied CPM over time — flat means spend and impressions are interchangeable",

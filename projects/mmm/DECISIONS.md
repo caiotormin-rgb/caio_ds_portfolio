@@ -465,3 +465,33 @@ added outside the generator.
 6a6370f by a blanket `git add -A`. Harmless, but the commit message did not
 mention it. Prefer scoped `git add` when the working tree has Caio's edits in it.
 
+## 2026-08-18 — EDA notebook — channel labels on plots, and Claude's first-pass notes
+**Labels:** plot titles and axes now carry the assigned names (`Channel3 · TV / CTV`
+on panels, `C3 TV` where space is tight). A disclosure cell sits directly above
+section 1 restating that names are a convention with weak-to-moderate evidence
+and none for Channel4. Per D3, raw identifiers remain canonical in all code.
+
+**First-pass notes — a deliberate reversal, at Caio's request.** Each section now
+carries a "Claude's first pass" block above the still-empty "Your read" cell.
+Every figure in those notes was computed from the data, not recalled. They are
+labelled *anchors to argue with, not answers*, and Caio's cell stays his.
+**Risk accepted and recorded:** an anchor biases the reader. Caio asked for it
+after working with blank cells, and a first pass he disagrees with is more
+useful to him than a blank page. If his reads start merely echoing the notes,
+this was the wrong call and should be reverted.
+
+**What the first pass actually says — the four that matter:**
+1. Only C2 ever goes dark, 2.6% of weeks. Everything else is always-on, so
+   **adstock will be weakly identified almost everywhere.**
+2. **The largest channel has the least variation** (C3 TV: 40% of spend, CV 0.31,
+   p90/p10 2.26) while the smallest has the most (C2: CV 0.87, p90/p10 20.3).
+   The budget decision that matters most rests on the weakest evidence.
+3. **Media is more entangled with the control than with other media** —
+   C4↔competitor_sales 0.75 and C3↔competitor_sales 0.70, versus a worst
+   channel-pair of 0.70.
+4. **Nothing is visible in raw form.** No carryover (all |r| ≤ 0.18, peak lags
+   scattered with no decay shape), no saturation bend, and three of five channels
+   slope *downward* across spend quintiles. The entire result will come from the
+   model specification rather than from anything observable — which raises the
+   stakes on `05-analysis-plan.md` being written before any model is fit.
+
