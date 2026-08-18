@@ -819,3 +819,28 @@ on what carries into later phases. 767 words across 11 sections, 9 tagged
 - Media-to-media collinearity is a non-issue (VIF 1.03-1.05) — worth stating
   because it removes the usual reason MMMs come out unstable.
 
+## 2026-08-18 — D12: STAY on Robyn. Scope held.
+**Caio:** "i fear this will add too much complexity than initially scoped" ->
+"stay as is."
+**Chose:** finish the chain on `dt_simulated_weekly`. No third dataset, no AMSS,
+no difficulty ladder.
+
+**Why, beyond the head-to-head:**
+- **Caio's nine interview reads are keyed to Robyn's channels.** They are the
+  portfolio content that shows his judgment. A 13-channel retailer invalidates
+  all of them and the interview restarts. That cost does not appear in any
+  comparison table and it is the largest one.
+- Robyn's weak signal (2.6pp incremental) is **reportable, not disqualifying** —
+  D10 already commits to ranges, and "media explains little once seasonality is
+  controlled" is a finding.
+- `01`'s data-readiness audit is already the unusual asset. A third candidate
+  does not strengthen it.
+- AMSS would reopen D1 (no R) and add a toolchain.
+
+**Claude's failure to own:** the original scope was one dataset, a constrained
+reallocation, ten artifacts. Since then: one dataset switch, an augmentation
+layer built then abandoned, four platform APIs researched, and a third dataset
+plus second simulator proposed. Each step was individually defensible; together
+they are exactly the drift Caio warned about in his first message. Claude was
+generating optionality instead of braking.
+

@@ -78,6 +78,17 @@ unitless 0–1 values — no currency to reallocate) and Meridian's
 `hypothetical_geo_all_channels.csv` (**no outcome column**, despite the docs
 describing one).
 
+**Root cause of Meridian's failure, from reading its data-generating process**
+([`RF_Data_Simulation_for_Meridian.ipynb`](https://github.com/google/meridian/blob/main/demo/RF_Data_Simulation_for_Meridian.ipynb)):
+impressions are drawn as `max(u_m + u_tm + u_gtm, 0)` from iid normals with **no
+seasonal and no autoregressive term** — which is why there is no flighting and
+only 1.07× seasonality. `u_m` and `u_tm` are **shared across all geos**, with
+only `u_gtm` (sd 0.5) varying — which is why all 40 markets carry a near-identical
+mix. And although the notebook states controls are simulated "to account for
+[their] potential influence as a confounding factor", **the media equation never
+references the control variables**, so no confounding is actually induced. The
+rejection was correct and the reason is in the source.
+
 **Robyn's known weakness is a modelling problem, not an identification failure:**
 `competitor_sales_B` correlates 0.92 with revenue. That is confronted in `03` and
 resolved in `05`.

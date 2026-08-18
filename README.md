@@ -47,8 +47,15 @@ rejected the Meridian sample (no flighting, 1.07x seasonality, no spend-outcome
 signal at national or geo grain). 208 weeks, real named channels, 3.31x
 seasonality, 4/5 channels flighted, all five sloping upward.
 
-**Phase 2 artifacts:** `00` closed · `01` **STALE, rewrite** · `02` **STALE,
-rewrite** · `03` waiting on Caio's reads. Notebook rebuilt and current.
+**Phase 2 artifacts:** `00` closed · `01` written · `02` written ·
+`03` ready to write from Caio's nine interview reads.
+
+**D12 — scope held.** Dataset stays Robyn. A better real dataset
+(`case_study_data`, 13 channels, 1.7x the media signal) and a ground-truth
+simulator (AMSS) were found and **deliberately parked** — switching would
+invalidate the nine EDA reads that carry Caio's judgment.
+
+**Next action:** write `03-data-quality.md` from the notebook reads. Then `04`, `05`, `06`.
 
 **Agreed sequence — do not skip, do not skip the decisions inside it:**
 find the right data → ingest → prepare → **Caio analyzes it himself, with help**
