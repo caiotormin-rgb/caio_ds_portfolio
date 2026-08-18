@@ -337,3 +337,46 @@ weekly data.
 **Still open:** whether to add simulated sources at all, and the channel naming
 proposal. Neither decided.
 
+## 2026-08-18 — Phase 2 — D3: channel names assigned as a disclosed convention
+**Context:** source channels are `Channel0`-`Channel4` with no media type. Caio
+asked for them to be named and documented; Claude proposed a mapping from
+behavioural signatures and Caio approved the direction.
+**Evidence is weak.** Four of five CPMs sit between 7.33 and 7.79, no channel
+shows TV-like flighting or search-like smoothness. Google's simulation simply
+did not encode media-type character.
+**Assigned:** Channel3 -> TV/CTV (moderate), Channel1 -> YouTube/premium video
+(moderate, only distinctive CPM at 9.64), Channel2 -> Out-of-home (moderate;
+burstiest, only channel with dark weeks, 17.1% of annual spend in October),
+Channel0 -> Programmatic display (weak), **Channel4 -> Paid social (no evidence
+whatsoever — an assignment, not an inference)**.
+**Rules recorded in `02-data-dictionary.md`:** disclose the convention wherever a
+name appears; no claim may rest on a name; modelling code uses raw identifiers
+and names are a presentation layer applied only at readout.
+**Rules out:** treating any media-type conclusion as a finding of the analysis.
+
+## 2026-08-18 — Phase 2 — D4: which simulated sources to add
+Direction approved by Caio. Build order by value-to-invention-cost:
+1. **Holiday calendar** — real public data, zero invention. The only addition
+   that raises credibility rather than spending it.
+2. **Trends-style branded interest index** — integer 0-100, exactly one period
+   equal to 100, zeros meaningful, generated at weekly grain (which a 3-year
+   Trends window returns natively). A legitimate brand-demand control.
+3. **Branded / non-branded paid search** — highest modelling value. Must be
+   presented as an **analyst-derived** column, never an API field. Underlying
+   rows must respect IS clipping ([0.1,1.0], sub-0.1 as exactly 0.0999) and
+   fractional DOUBLE conversions.
+4. **Reach & frequency on one video channel** — **demoted to diagnostic only**,
+   not a model driver, per the non-additivity finding. Generated directly at
+   weekly grain; `reach <= impressions` and `frequency = impressions/reach`.
+
+**RULED OUT: Google Search Console.** 16-month retention makes a 156-week series
+unobtainable via the standard API. Simulating one implies a BigQuery bulk export
+or three years of manual monthly pulls — a lot of implied backstory for little
+modelling gain.
+
+**Boundary that must hold:** every column is tagged as Google's simulation or
+ours. `01-data-sources.md` and `06-model-card.md` both carry the split. Adding
+invented data to an already-simulated dataset costs credibility; the mitigation
+is that the boundary is never blurred.
+**Nothing generated yet.** Build order above is proposed, not executed.
+

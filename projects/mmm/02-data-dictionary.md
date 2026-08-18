@@ -28,6 +28,34 @@ Loaded via `src/01_load.py :: national()`. `r_y` = Pearson correlation with `con
 | `sentiment_score_control` | float | yes | Brand sentiment. Context/control, **pre-standardised** | `-0.0264` | Range −1.86 to +1.96, mean ≈ 0. `r_y` −0.056 |
 | `Promo` | float | yes | Promotional intensity | `0.4957` | Range 0.012–1.473, **never zero — always-on continuous intensity, not an on/off flag.** `r_y` **+0.299** |
 
+## Channel naming — a documented convention, NOT a finding
+
+The source data ships channels as `Channel0`–`Channel4` with **no media type**.
+The names below are **assigned by us** so the readout can speak in media terms
+instead of indices. They are a labelling convention and must be disclosed as one
+wherever they appear.
+
+Google's simulation did not encode media-type character: four of the five CPMs
+fall between 7.33 and 7.79, and no channel shows a classic TV flighting pattern
+or search-like smoothness. Evidence for the mapping is therefore **weak to
+moderate, and for two channels it is nil.**
+
+| Raw | Assigned name | Evidence | Basis |
+|---|---|---|---|
+| `Channel3` | **TV / CTV** | moderate | Largest at 40.0% of spend, steadiest (CV 0.31), most persistent (AC1 0.31), highest impressions (72.3m/wk) |
+| `Channel1` | **YouTube / premium video** | moderate | Only distinctive CPM — 9.64 vs 7.33–7.79 for every other channel, +25% |
+| `Channel2` | **Out-of-home** | moderate | Burstiest (CV 0.87), only channel with dark weeks (2.6%), strong Q4 skew — 17.1% of annual spend in October vs 2.9% in April |
+| `Channel0` | **Programmatic display** | **weak** | Lowest CPM (7.33) at high volume. Consistent with display, but not diagnostic |
+| `Channel4` | **Paid social** | **none** | CPM (7.79) is identical to Channel3's and every other signature is mid-range. **This name is an assignment, not an inference** |
+
+**Rules for using these names**
+1. Anywhere a name appears in a deliverable, the convention is disclosed.
+2. No claim about a named channel may rest on the name. "Out-of-home saturates
+   early" is only ever "Channel2 saturates early, and we labelled Channel2 OOH."
+3. `06-model-card.md` and `08-readout.md` both carry the disclosure.
+4. Modelling code uses the **raw** `Channel0`–`Channel4` identifiers throughout.
+   Names are a presentation layer applied at readout time only.
+
 ## Units and conventions
 
 | Convention | Meaning |
