@@ -1,3 +1,9 @@
+"""STALE — written against the Meridian columns (Channel0-4, conversions).
+D8 switched the project to Robyn. The holiday logic is reusable; the brand
+index and reach/frequency blocks reference columns that no longer exist.
+Do not run. Rewrite or retire before use.
+"""
+
 """Phase 2 — build the augmentation table.
 
 Writes data/simulated/augmented_weekly.csv, keyed on `time`, joinable 1:1 to the

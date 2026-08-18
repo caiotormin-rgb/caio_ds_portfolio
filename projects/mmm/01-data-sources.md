@@ -1,3 +1,8 @@
+> # ⚠️ STALE — DESCRIBES THE REJECTED MERIDIAN DATASET
+> D8 switched the project to Robyn `dt_simulated_weekly`. Everything below
+> documents the Meridian sample, which is now **audit evidence** in
+> `data/audit/`, not the modelling input. **Rewrite required.**
+
 # 01 — Data sources
 *CRISP-DM Phase 2: Data Understanding. Cap: 500w.*
 

@@ -42,17 +42,13 @@ chart fastest. Momentum matters more than starting with the flagship.
 **Next action:** Caio works through `projects/mmm/notebooks/01_eda.ipynb` and
 fills the ten "Your read" cells. Nothing else moves.
 
-**Phase 2 artifacts:** `00` closed · `01` written · `02` written (incl. channel
-naming convention) · `03` **waiting on Caio's reads — Claude must not write it**.
+**D8 — dataset switched to Robyn `dt_simulated_weekly`** after a readiness audit
+rejected the Meridian sample (no flighting, 1.07x seasonality, no spend-outcome
+signal at national or geo grain). 208 weeks, real named channels, 3.31x
+seasonality, 4/5 channels flighted, all five sloping upward.
 
-**Augmentation: DONE (D6/D7).** `data/simulated/augmented_weekly.csv` — 9 real
-holiday columns, a Trends-style `brand_interest_index` (a deliberate mediator),
-and reach/frequency diagnostics for Channel1 and Channel4. Simulated paid-search
-channel **dropped** (D7): with Google owning `conversions`, an invented channel
-has no recoverable effect.
-
-**Standing:** this dataset is a starting point. Caio intends to bring better data
-later — keep `src/01_load.py` as the single swap point.
+**Phase 2 artifacts:** `00` closed · `01` **STALE, rewrite** · `02` **STALE,
+rewrite** · `03` waiting on Caio's reads. Notebook rebuilt and current.
 
 **Agreed sequence — do not skip, do not skip the decisions inside it:**
 find the right data → ingest → prepare → **Caio analyzes it himself, with help**

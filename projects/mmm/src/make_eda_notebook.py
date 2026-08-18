@@ -1,12 +1,15 @@
 """Generate notebooks/01_eda.ipynb — structure stays simple and flat.
 
-Per section: question -> evidence -> what to look for + references -> blank cell.
+Per section: question -> evidence -> what to look for + references -> Claude's
+first pass -> blank cell for Caio.
 
-The "what to look for" bullets are PROMPTS, never conclusions. They tell Caio
-where to point his attention and what would make a reading wrong. If one of them
-ever starts to state a finding, it has drifted and should be cut.
+"What to look for" bullets are PROMPTS, never conclusions. "First pass" bullets
+ARE observations, every figure computed from the data — anchors to argue with.
+Caio's cell stays his.
 
-All reference URLs were HTTP-checked before being written in.
+Regeneration is NON-DESTRUCTIVE: filled "Your read" text is carried forward.
+
+Dataset: Robyn dt_simulated_weekly (D8). All reference URLs HTTP-checked.
 """
 import os
 import nbformat as nbf
@@ -16,94 +19,103 @@ C = []
 md = lambda s: C.append(nbf.v4.new_markdown_cell(s.strip()))
 code = lambda s: C.append(nbf.v4.new_code_cell(s.strip()))
 
-# Claude's first-pass observations, consumed in section order by guide().
-# These are ANCHORS TO ARGUE WITH, not answers. Every figure in them was computed
-# from the data. The "Your read" cell below each one stays Caio's.
+MER_DATA = ("Meridian - collecting data", "https://developers.google.com/meridian/docs/user-guide/collect-data")
+MER_CTRL = ("Meridian - control variables (mediators, confounders, scaling)", "https://developers.google.com/meridian/docs/advanced-modeling/control-variables")
+MER_SPEC = ("Meridian - model specification", "https://developers.google.com/meridian/docs/basics/model-spec")
+MER_ROI  = ("Meridian demo - ROI, marginal ROI and response curves", "https://github.com/google/meridian/blob/main/demo/ROI_mROI_Response_Curves.ipynb")
+JIN      = ("Jin et al. - Bayesian Methods for MMM with Carryover and Shape Effects", "https://research.google/pubs/bayesian-methods-for-media-mix-modeling-with-carryover-and-shape-effects/")
+CHAN     = ("Chan & Perry - Challenges and Opportunities in Media Mix Modeling", "https://research.google/pubs/challenges-and-opportunities-in-media-mix-modeling/")
+ROBYN    = ("Robyn - adstock and saturation features", "https://facebookexperimental.github.io/Robyn/docs/features")
+FPP3     = ("Hyndman & Athanasopoulos - Forecasting: Principles and Practice", "https://otexts.com/fpp3/")
+VIF      = ("Multicollinearity - what it does to coefficient estimates", "https://en.wikipedia.org/wiki/Multicollinearity")
+OSS      = ("Open-Source Media and Marketing Mix Modeling - practice overview", "https://link.springer.com/article/10.1007/s40547-026-00161-4")
+
 OBS = [
- [  # 1 completeness
-  "Clean: 156 consecutive Monday weeks, no gaps, no duplicates, no missing values, no negative spend, no zero-conversion weeks.",
-  "`revenue_per_conversion` does vary, but trivially — CV 0.076%. Revenue and conversions are interchangeable as an outcome.",
-  "**156 rows is the binding constraint.** Five channels each needing a coefficient, an adstock and a saturation parameter, plus controls and seasonality, puts us near the 10:1 observations-to-parameter guideline — not comfortably above it.",
+ [
+  "Clean: 208 consecutive Monday weeks, no gaps, no duplicates, no missing values, no negative spend, no zero-revenue weeks.",
+  "**`events` is unusable** - 206 of 208 weeks are `\"na\"`, with `event1` and `event2` occurring once each. Drop it rather than pretend it controls for anything.",
+  "**Partial years at both ends**: 2015 contributes 6 weeks (peak season only), 2019 contributes 45 (missing the November peak). Any raw year-over-year comparison is an artefact.",
+  "Revenue spans 672k-3.83m, max/min 5.69. Wide, and mostly seasonal - see section 2.",
  ],
- [  # 2 outcome
-  "Trend is **+119k conversions/week, about +1.5%/year** — small, but not zero.",
-  "**Seasonality is very mild: month peak/trough is only 1.07.** Unusual for a consumer brand. Little seasonal variance for media to compete with — but also little variance to explain at all.",
-  "Range 340m–491m, max/min 1.44. Residual SD after removing month means is 28m, so most week-to-week movement is *not* seasonal.",
+ [
+  "**No trend at all**: -66 per week, p = 0.94. A flat, mature brand over four years.",
+  "**Seasonality is strong - 3.31x month peak/trough**, June 0.87m rising to November 2.87m. This is the dominant feature of the outcome.",
+  "So the baseline the model must find is almost entirely seasonal. Anything tracking that annual wave will compete with media for credit - hold that until section 7.",
  ],
- [  # 3 money split
-  "Concentrated: **C3 TV alone is 40% of paid spend**; C2 OOH is 5.5%.",
-  "Spend/revenue 16.6% — heavy, more DTC than mature CPG.",
-  "C2 is small enough that any ROI on it will carry wide intervals. Worth deciding now what you'll say if it comes back looking like the best channel.",
+ [
+  "**Out-of-home is 61.9% of paid spend.** TV 21.3%, search 8.5%, print 5.3%, **Facebook just 3.1%**.",
+  "That mix is atypical for a consumer brand, so conclusions about *which* channel wins will not generalise. Say so in the readout rather than leaving a reviewer to notice.",
+  "Total paid spend is only **3.8% of revenue** - light, more mature-CPG than DTC.",
  ],
- [  # 4 flighting
-  "**Only C2 OOH ever goes dark, and only in 2.6% of weeks.** The other four are always-on.",
-  "That matters more than it looks: with no on/off cycling, there is little for a carryover parameter to latch onto. Adstock will be weakly identified almost everywhere.",
+ [
+  "**Four of five channels are genuinely flighted**: OOH dark 59% of weeks, print 58%, TV 56%, Facebook 51%.",
+  "**Paid search is the exception at 15% - effectively always-on.** Two regimes in one dataset.",
+  "This is the property that makes carryover estimable: long dark stretches are where an effect can be watched decaying. Note that 'average weekly spend' is meaningless for the flighted four and must not appear in the readout.",
  ],
- [  # 5 variation
-  "**The smallest channel has the most variation** — C2 OOH: CV 0.87, p90/p10 = 20.3.",
-  "**The largest has the least** — C3 TV: CV 0.31, p90/p10 = 2.26, at 40% of budget.",
-  "That inversion is the central tension: the channel whose budget decision matters most is the one the data can say least about.",
+ [
+  "Enormous variation: CV **1.92 TV, 1.94 OOH, 1.74 print, 1.47 Facebook**, against 0.79 for search.",
+  "Max-to-min ratios reach 1,518x (OOH) and 698x (TV), driven by on/off cycling rather than outliers.",
+  "**This is the opposite of the rejected dataset's problem.** Identification here is plausible; the constraint is elsewhere.",
  ],
- [  # 6 collinearity
-  "Strongest channel pair is **C2 OOH ↔ C3 TV at 0.70**.",
-  "**But the worse problem is with a control:** C4 Social ↔ competitor_sales is **0.75**, C3 TV ↔ competitor_sales is 0.70. Media is more entangled with the control than with other media.",
-  "Bottom row: every raw media-to-conversions correlation sits between −0.18 and +0.05. A naive analyst reading this chart alone would conclude media does nothing.",
+ [
+  "**Channels are almost independent of each other** - strongest pair is TV-Facebook at 0.15. Multicollinearity between media is not a problem here.",
+  "**But `competitor_sales_B` correlates 0.92 with revenue**, far above any channel (best is search at 0.44). This single variable is the central modelling problem.",
+  "Two other links: newsletter-search 0.60, competitor-search 0.48. Search is entangled with both the organic channel and the control.",
  ],
- [  # 7 controls
-  "`competitor_sales_control` is the strongest single relationship with conversions (−0.38) — but it correlates 0.70–0.75 with media, so it is not an independent control.",
-  "`Promo` correlates +0.30 with conversions **and 0.45 with total media spend.** Whose lever is it?",
-  "`sentiment_score_control` is −0.06 with conversions. It may earn no place in the model at all.",
+ [
+  "`competitor_sales_B` at **r = 0.92** will absorb nearly all outcome variance if entered as-is. Media would then be estimated off a small residual and come back conservative - possibly uselessly so.",
+  "Revenue swings 3.31x seasonally and this variable tracks that swing. It looks like it carries **category seasonality**, not competitive pressure. That is a hypothesis, not a finding - what would test it?",
+  "Google's guidance is blunt: *\"Mediator variables shouldn't be included as control variables, because including them will bias causal inference estimates.\"* Confounder, mediator, or seasonality proxy? The data cannot settle it; `05-analysis-plan.md` must.",
+  "`newsletter` is organic - no media cost, so it stays out of any reallocation, but it may still belong in the model.",
  ],
- [  # 8 carryover
-  "**No visible carryover anywhere.** Every cross-correlation across every channel and lag sits within |r| ≤ 0.18.",
-  "Peak lags are scattered (0, 1, 1, 2, 5) with no decay shape — that pattern is what noise looks like, not adstock.",
-  "**Careful:** absence here is not evidence of absence. Raw uncontrolled correlation is a weak instrument, and section 4 already told us the always-on channels give it little to work with.",
+ [
+  "**Real decay shapes, unlike the rejected dataset.** TV peaks at lag 0 (+0.42) but stays elevated at +0.23 to +0.35 all the way to lag 8 - persistent carryover.",
+  "Paid search peaks at +0.44 and decays steadily to +0.21 by lag 8 - a shorter, cleaner tail.",
+  "OOH is weak throughout (+0.08 to +0.17) despite being the largest channel by spend. Hold that against section 9.",
+  "**Still uncontrolled.** With 3.31x seasonality in the outcome, some of every one of these shapes is seasonality rather than carryover. What would you strip out before believing them?",
  ],
- [  # 9 diminishing returns
-  "**No saturation bend is visible in any channel.** The quintile lines are close to flat.",
-  "Three of five slope *downward*: C2 −18m, C4 −14m, C3 −10m from lowest to highest spend quintile.",
-  "Read that as **when the planner spent**, not as media hurting sales. It is the classic confound this chart cannot resolve.",
+ [
+  "**All five channels slope upward across spend quintiles** - the first genuinely encouraging chart in this notebook.",
+  "Facebook is steepest (+0.97m from Q1 to Q5) despite being only 3.1% of spend. TV +0.71m, search +0.80m, print +0.43m.",
+  "**Out-of-home is nearly flat (+0.13m) while consuming 61.9% of the budget.** If that survives controlling for seasonality, it is the headline of the whole project.",
+  "None bend over yet - no visible saturation. Either the brand is not spending into diminishing returns, or the bivariate view is too crude to show it.",
  ],
- [  # 10 spend vs impressions
-  "**CPM is exactly constant per channel** (7.3327 / 9.6412 / 7.4309 / 7.7928 / 7.7919) to floating-point noise.",
-  "So spend and impressions are the same variable in different units — no auction pressure, no audience exhaustion, no seasonal CPM. Real data never looks like this.",
-  "The unit choice is therefore free. But note what it costs the story: nothing here can show rising media costs over time.",
+ [
+  "Only Facebook and search have exposure twins; the offline channels are spend-only.",
+  "**Unit cost genuinely varies**: Facebook cost-per-impression CV 0.252, search cost-per-click CV 0.124. Spend and exposure are *not* interchangeable here - a real choice with consequences.",
+  "Spend correlates 0.991 with impressions (Facebook) and 0.983 with clicks (search). High, but the residual is where auction pressure and efficiency changes live.",
+  "Media effects come from delivery; budget decisions are made in money. You will need the conversion between them either way.",
  ],
 ]
+
 
 def guide(points, refs):
     body = "#### What to look for\n\n" + "\n".join(f"- {p}" for p in points)
     body += "\n\n#### Reference\n\n" + "\n".join(f"- [{t}]({u})" for t, u in refs)
     md(body)
     if OBS:
-        obs = OBS.pop(0)
-        md("#### Claude's first pass — *anchors to argue with, not answers*\n\n"
-           + "\n".join(f"- {o}" for o in obs))
+        md("#### Claude's first pass - *anchors to argue with, not answers*\n\n"
+           + "\n".join(f"- {o}" for o in OBS.pop(0)))
     C.append(nbf.v4.new_markdown_cell("**Your read:**\n\n"))
 
-# --- reference shorthands (all verified 200) ---------------------------------
-MER_DATA   = ("Meridian — collecting data", "https://developers.google.com/meridian/docs/user-guide/collect-data")
-MER_NAT    = ("Meridian — loading national data", "https://developers.google.com/meridian/docs/user-guide/load-national-data")
-MER_SCHEMA = ("Meridian — unified data schema", "https://developers.google.com/meridian/docs/user-guide/mmm-unified-schema")
-MER_SPEC   = ("Meridian — model specification", "https://developers.google.com/meridian/docs/basics/model-spec")
-MER_CONF   = ("Meridian — configuring the model", "https://developers.google.com/meridian/docs/user-guide/configure-model")
-MER_ROI    = ("Meridian demo — ROI, marginal ROI and response curves", "https://github.com/google/meridian/blob/main/demo/ROI_mROI_Response_Curves.ipynb")
-JIN        = ("Jin et al. — Bayesian Methods for Media Mix Modeling with Carryover and Shape Effects", "https://research.google/pubs/bayesian-methods-for-media-mix-modeling-with-carryover-and-shape-effects/")
-CHAN       = ("Chan & Perry — Challenges and Opportunities in Media Mix Modeling", "https://research.google/pubs/challenges-and-opportunities-in-media-mix-modeling/")
-ROBYN      = ("Robyn — adstock and saturation features", "https://facebookexperimental.github.io/Robyn/docs/features")
-FPP3       = ("Hyndman & Athanasopoulos — Forecasting: Principles and Practice (decomposition, seasonality)", "https://otexts.com/fpp3/")
-VIF        = ("Multicollinearity — what it does to coefficient estimates", "https://en.wikipedia.org/wiki/Multicollinearity")
-OSS        = ("Open-Source Media and Marketing Mix Modeling — practice-oriented overview", "https://link.springer.com/article/10.1007/s40547-026-00161-4")
 
 md("""
-# MMM — Exploratory Data Analysis
-### Meridian simulated national dataset, 156 weeks
+# MMM - Exploratory Data Analysis
+### Robyn `dt_simulated_weekly` - 208 weeks, 2015-11 to 2019-11
 
 **How to use this.** Each section asks one question, renders the evidence, then
-gives you prompts and reading. The conclusions go in the **Your read** cells and
-they are yours — nothing here writes them for you.
+gives you prompts, reading, and my first pass. The conclusions go in the
+**Your read** cells and they are yours - argue with mine.
 
 Anything that becomes a *project decision* goes to `DECISIONS.md`, not here.
+
+> **Why this dataset.** The Meridian sample was audited and rejected: no
+> flighting, 1.07x seasonality, and no visible spend-to-outcome relationship at
+> either national or geo grain. This one has real on/off cycling in four of five
+> channels, 3.31x seasonality, and all five channels sloping upward. Full audit
+> in `01-data-sources.md`. Its own weakness - a control correlating 0.92 with
+> revenue - is a modelling problem rather than an identification failure, and
+> section 7 is where you meet it.
 
 **Questions, in order**
 
@@ -117,16 +129,13 @@ Anything that becomes a *project decision* goes to `DECISIONS.md`, not here.
 | 6 | Are the channels collinear? | Collinearity is the main reason MMMs come out unstable |
 | 7 | Do the controls behave? | A control that tracks the outcome will steal media's credit |
 | 8 | Is there visible carryover? | Decides whether adstock is warranted, and roughly how long |
-| 9 | Is there visible diminishing returns? | The saturation curve is the deliverable — does the data show one? |
-| 10 | Are spend and impressions consistent? | Unstable CPM means the two units are not interchangeable |
-
-**Start here if you want background before the data:**
-[Meridian — collecting data](https://developers.google.com/meridian/docs/user-guide/collect-data) ·
-[Chan & Perry — Challenges and Opportunities in MMM](https://research.google/pubs/challenges-and-opportunities-in-media-mix-modeling/)
+| 9 | Is there visible diminishing returns? | The saturation curve is the deliverable - does the data show one? |
+| 10 | Are spend and exposure consistent? | Unstable unit cost means the two are not interchangeable |
 """)
 
 code("""
-import pandas as pd, numpy as np, matplotlib.pyplot as plt
+import importlib.util
+import numpy as np, pandas as pd, matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 
 SURF, INK, INK2, GRID = "#fcfcfb", "#0b0b0b", "#52514e", "#e3e2df"
@@ -150,167 +159,133 @@ def tidy(ax, title=None, sub=None, ylab=None, pad=None):
     ax.set_axisbelow(True); ax.grid(axis="x", visible=False)
     return ax
 
-import importlib.util
 spec = importlib.util.spec_from_file_location("mmm", "../src/01_load.py")
 mmm = importlib.util.module_from_spec(spec); spec.loader.exec_module(mmm)
 mmm.validate()          # every integrity assertion runs before any analysis
-df = mmm.national()
+df = mmm.weekly()
 
-# --- channel labels: a DISCLOSED CONVENTION, not a finding (02-data-dictionary.md)
-# Raw identifiers stay canonical everywhere; names are presentation only.
-CHANNEL_NAMES = {
-    "Channel0": "Programmatic display",     # evidence: weak
-    "Channel1": "YouTube / premium video",  # evidence: moderate - only distinctive CPM
-    "Channel2": "Out-of-home",              # evidence: moderate - bursty, dark weeks, Q4 skew
-    "Channel3": "TV / CTV",                 # evidence: moderate - largest, steadiest
-    "Channel4": "Paid social",              # evidence: NONE - assigned, not inferred
-}
-SHORT = {"Channel0": "C0 Display", "Channel1": "C1 Video", "Channel2": "C2 OOH",
-         "Channel3": "C3 TV", "Channel4": "C4 Social"}
-LABEL = lambda c: f"{c} · {CHANNEL_NAMES[c]}"
-
-CH      = [f"Channel{i}" for i in range(5)]
-SPEND   = [f"{c}_spend" for c in CH]
-IMPR    = [f"{c}_impression" for c in CH]
-CONTROL = ["competitor_sales_control", "sentiment_score_control", "Promo"]
-df["revenue"] = df.conversions * df.revenue_per_conversion
+SPEND = mmm.SPEND            # tv_S, ooh_S, print_S, facebook_S, search_S
+NAME  = mmm.CHANNEL_LABEL    # real channel names - no invented convention needed
+EXPOSURE = mmm.EXPOSURE      # facebook_S -> facebook_I, search_S -> search_clicks_P
+Y = "revenue"
 df["total_spend"] = df[SPEND].sum(axis=1)
-
-print(f"{len(df)} weeks | {df.time.min():%Y-%m-%d} to {df.time.max():%Y-%m-%d}")
 df.head(3)
-""")
-
-md("""
-> **Channel names are a labelling convention, not a finding.** The source ships
-> `Channel0`-`Channel4` with no media type. Names were assigned from behavioural
-> signatures; the evidence is **weak to moderate — and for `Channel4`, none at
-> all**. Raw identifiers stay canonical throughout and names appear only on
-> plots. **No conclusion may rest on a name.** Mapping and evidence grades:
-> `02-data-dictionary.md`.
 """)
 
 md("## 1. Is the data complete and regular?")
 code("""
-gaps = df.time.diff().dt.days.value_counts().to_dict()
-print("day-steps between rows:", gaps)
-print("duplicate weeks      :", df.time.duplicated().sum())
-print("missing values       :", int(df.isna().sum().sum()))
-print("negative spend       :", int((df[SPEND] < 0).sum().sum()))
-print("zero-conversion weeks:", int((df.conversions == 0).sum()))
+print("day-steps between rows:", df.DATE.diff().dt.days.value_counts().to_dict())
+print("duplicate weeks       :", df.DATE.duplicated().sum())
+print("missing values        :", int(df.isna().sum().sum()))
+print("negative spend        :", int((df[SPEND] < 0).sum().sum()))
+print("zero-revenue weeks    :", int((df[Y] == 0).sum()))
+print("events levels         :", df.events.value_counts().to_dict())
+print("weeks per year        :", df.DATE.dt.year.value_counts().sort_index().to_dict())
 print()
-print(df[["conversions", "revenue_per_conversion", "total_spend"]].describe().T.to_string())
+print(df[[Y, "total_spend", "newsletter", "competitor_sales_B"]].describe().T.to_string())
 """)
 guide([
- "Are all the day-steps identical? A single 14-day step means a missing week that silently becomes a jump in every lag and every adstock calculation.",
- "Any duplicated weeks? Duplicates double-weight those observations without warning.",
- "Look at min/max on the outcome. Are there values extreme enough to dominate a squared-error fit?",
- "`revenue_per_conversion` — is it varying at all, or effectively a constant? If constant, revenue carries no information that conversions doesn't.",
- "Ask yourself what you would *not* be able to detect with only 156 rows. That number constrains everything downstream.",
-], [MER_SCHEMA, MER_DATA])
+ "Are all day-steps 7? A single 14-day step is a missing week that silently becomes a jump in every lag.",
+ "Check `events`. How many weeks carry a value, and can a variable with one observation control for anything?",
+ "Look at weeks per year. Are the first and last complete? If not, what does that invalidate?",
+ "208 rows against 5 channels each needing a coefficient, an adstock and a saturation parameter, plus controls and seasonality - comfortable, or tight?",
+], [MER_DATA, CHAN])
 
 md("## 2. What is the outcome doing?")
 code("""
 fig, ax = plt.subplots(2, 1, figsize=(11, 6.4))
+ax[0].plot(df.DATE, df[Y]/1e6, color=BLUE)
+tidy(ax[0], "Revenue per week", "208 weeks, 2015-11 to 2019-11", "Revenue (m)")
 
-ax[0].plot(df.time, df.conversions/1e6, color=BLUE)
-tidy(ax[0], "Conversions per week", "156 weeks, 2021-01 to 2024-01", "Conversions (m)")
-
-m = df.groupby(df.time.dt.month).conversions.mean()/1e6
+m = df.groupby(df.DATE.dt.month)[Y].mean()/1e6
 ax[1].plot(m.index, m.values, color=BLUE, marker="o", markersize=5)
 ax[1].set_xticks(range(1, 13))
 ax[1].set_xticklabels(["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"])
-tidy(ax[1], "Mean conversions by calendar month",
-     f"peak/trough ratio = {m.max()/m.min():.2f}x", "Conversions (m)")
+tidy(ax[1], "Mean revenue by calendar month",
+     f"peak/trough ratio = {m.max()/m.min():.2f}x", "Revenue (m)")
 plt.tight_layout(); plt.show()
 
-t = np.arange(len(df))
-slope, icept = np.polyfit(t, df.conversions, 1)
-print(f"linear trend: {slope:,.0f} conversions/week "
-      f"({slope*52/df.conversions.mean()*100:+.1f}% of mean per year)")
+t = np.arange(len(df)); slope, _ = np.polyfit(t, df[Y], 1)
+print(f"linear trend: {slope:,.0f}/week ({slope*52/df[Y].mean()*100:+.1f}% of mean per year)")
 """)
 guide([
- "Trend, flat, or stepped? A trend competes with media for credit — anything growing steadily will get attributed to whichever channel also grew.",
- "How strong is seasonality? Compare the peak/trough ratio to what you'd expect for a real advertiser.",
- "Any level shifts or structural breaks — a jump that no media plan would explain? Those usually mean something happened to the business, and the model has no way to know.",
- "The key question: **if you removed all media, what shape would remain?** That residual shape is the baseline the model has to find, and everything it can't explain gets dumped there.",
- "With only three years, how many full seasonal cycles do you actually have to learn seasonality from?",
+ "Trend, flat, or stepped? Anything growing steadily gets attributed to whichever channel also grew.",
+ "How much of the movement is the annual wave, and how much is week-to-week?",
+ "**If you removed all media, what shape would remain?** That residual is the baseline the model must find - and everything it cannot explain gets dumped there.",
+ "Four years gives four seasonal cycles. Enough to separate seasonality from a slow-moving media effect?",
 ], [FPP3, CHAN])
 
 md("## 3. How is the money split across channels?")
 code("""
 tot = df[SPEND].sum().sort_values(ascending=False)
 fig, ax = plt.subplots(figsize=(9, 3.4))
-ax.barh([LABEL(c.replace("_spend","")) for c in tot.index][::-1], (tot/1e6).values[::-1], color=BLUE, height=.62)
+ax.barh([NAME[c] for c in tot.index][::-1], (tot/1e6).values[::-1], color=BLUE, height=.62)
 for i, v in enumerate((tot/1e6).values[::-1]):
-    ax.text(v, i, f"  {v:,.1f}m ({v/(tot.sum()/1e6)*100:.0f}%)", va="center", fontsize=9, color=INK2)
-ax.set_xlim(0, (tot/1e6).max()*1.16)
-ax.grid(axis="y", visible=False)
-tidy(ax, "Total spend by channel, whole period", "Share of paid spend in brackets", "")
+    ax.text(v, i, f"  {v:,.2f}m ({v/(tot.sum()/1e6)*100:.0f}%)", va="center", fontsize=9, color=INK2)
+ax.set_xlim(0, (tot/1e6).max()*1.18); ax.grid(axis="y", visible=False)
+tidy(ax, "Total spend by channel, whole period", "Share of paid spend in brackets")
 ax.set_xlabel("Spend (m)"); plt.tight_layout(); plt.show()
 
-print((tot/tot.sum()).mul(100).round(1).to_string(), "\\n")
 print(f"total paid spend : {tot.sum():,.0f}")
-print(f"total revenue    : {df.revenue.sum():,.0f}")
-print(f"spend / revenue  : {tot.sum()/df.revenue.sum():.1%}")
+print(f"total revenue    : {df[Y].sum():,.0f}")
+print(f"spend / revenue  : {tot.sum()/df[Y].sum():.1%}")
 """)
 guide([
- "How concentrated is the budget? A channel at a few percent of spend may simply lack the leverage to be estimated with any precision — and a confident ROI on it would be a red flag, not a finding.",
- "Is the spend/revenue ratio plausible? Compare it against what you'd expect for the kind of advertiser this is meant to represent.",
- "Which channels are large enough that moving money in or out would actually change the business? Those are the ones your recommendation lives or dies on.",
- "Remember the channels are anonymous here. Does the spend pattern hint at what media type each one is — and would you be willing to defend that guess in an interview?",
+ "How concentrated is the budget? Which channel would a reallocation have to touch to matter at all?",
+ "Is this mix plausible for a real advertiser, and if not, how far do the conclusions travel?",
+ "A channel at ~3% of spend: can it be estimated precisely enough to act on? Decide before you see its ROI.",
+ "Is the spend-to-revenue ratio consistent with the kind of brand this seems to be?",
 ], [MER_DATA, MER_ROI])
 
 md("## 4. What does each channel's spend look like week to week?")
 code("""
 fig, axes = plt.subplots(5, 1, figsize=(11, 9), sharex=True)
-for ax, c in zip(axes, CH):
-    s = df[f"{c}_spend"]/1e3
-    ax.vlines(df.time, 0, s, color=BLUE, linewidth=1.4)
-    tidy(ax, f"{LABEL(c)}  —  {(s==0).mean():.0%} of weeks at zero spend", ylab="Spend (k)")
-axes[-1].set_xlabel("")
+for ax, c in zip(axes, SPEND):
+    s = df[c]/1e3
+    ax.vlines(df.DATE, 0, s, color=BLUE, linewidth=1.4)
+    tidy(ax, f"{NAME[c]}  -  {(s==0).mean():.0%} of weeks dark", ylab="Spend (k)")
 fig.suptitle("Weekly spend by channel", x=0.005, ha="left", y=1.0, fontsize=12)
 plt.tight_layout(); plt.show()
 """)
 guide([
- "Which channels are always-on and which are flighted? They are identified very differently — a channel that never turns off gives you almost nothing to learn decay from.",
- "Do the bursts repeat seasonally? If a channel only ever runs in peak weeks, its effect and seasonality are entangled and may not be separable at all.",
- "Look for long dark stretches. Those are where you can actually *watch* an effect decay, and they're what makes adstock estimable.",
- "Does any channel change regime — ramps up partway through and stays there? A regime change breaks the assumption that response is stable across the window.",
- "Does the flighting look like a media plan a human would buy, or like a random number generator? Your answer bears on how much the findings can be said to transfer.",
+ "Which channels are flighted and which are always-on? They are identified very differently.",
+ "Do bursts repeat seasonally? A channel that only runs in peak weeks has its effect entangled with seasonality - possibly inseparably.",
+ "Find the long dark stretches. That is where an effect can be watched decaying, and what makes adstock estimable.",
+ "Does the flighting look like a media plan a human would buy?",
 ], [ROBYN, MER_SPEC])
 
 md("## 5. Is there enough variation to identify an effect?")
 code("""
 v = pd.DataFrame({
-    "cv": df[SPEND].std()/df[SPEND].mean(),
-    "zero_weeks": (df[SPEND]==0).mean(),
-    "p10_p90_ratio": df[SPEND].quantile(.9)/df[SPEND].quantile(.1).replace(0, np.nan),
-})
-v.index = [SHORT[i.replace("_spend","")] for i in v.index]
+    "cv": [df[c].std()/df[c].mean() for c in SPEND],
+    "dark_weeks": [(df[c]==0).mean() for c in SPEND],
+    "max_over_min_nonzero": [df[c].max()/df[c].replace(0, np.nan).min() for c in SPEND],
+}, index=[NAME[c] for c in SPEND])
 
 fig, ax = plt.subplots(1, 2, figsize=(11, 3.4))
 ax[0].bar(v.index, v.cv, color=BLUE, width=.6)
 tidy(ax[0], "Coefficient of variation", "higher = more identifying variation", "std / mean")
-ax[1].bar(v.index, v.zero_weeks*100, color=BLUE, width=.6)
+ax[1].bar(v.index, v.dark_weeks*100, color=BLUE, width=.6)
 tidy(ax[1], "Share of weeks dark", "on/off bursts help identify carryover", "% of weeks")
-for a in ax: a.grid(axis="x", visible=False)
+for a in ax:
+    a.grid(axis="x", visible=False); a.tick_params(axis="x", labelrotation=20)
 plt.tight_layout(); plt.show()
-print(v.round(3).to_string())
+print(v.round(2).to_string())
 """)
 guide([
- "Which channel has the least variation? That one will come back with the widest uncertainty, and it should.",
- "Is the variation genuine on/off cycling, or a handful of spikes? A few spikes means a few observations are carrying the entire estimate.",
- "The blunt test: **would you be comfortable quoting an ROI for a channel that barely moved?** If not, decide now what you'll say about it rather than after the model gives you a number.",
- "Low variation and high collinearity compound each other. Hold this alongside section 6 rather than reading them separately.",
+ "Which channel has the least variation, and does that match the one you most need an answer about?",
+ "Is the variation genuine cycling, or a few extreme weeks carrying the estimate?",
+ "Compare against the rejected dataset (CV 0.31-0.87, no flighting). What does that comparison buy you in the writeup?",
 ], [CHAN, OSS])
 
 md("## 6. Are the channels collinear?")
 code("""
-cols = SPEND + ["competitor_sales_control", "sentiment_score_control", "Promo", "conversions"]
+cols = SPEND + ["competitor_sales_B", "newsletter", Y]
 cm = df[cols].corr()
-cm.index = cm.columns = [SHORT.get(c.replace("_spend",""), c.replace("_spend","").replace("_control","")) for c in cols]
+labels = [NAME.get(c, c.replace("_B","").replace("_S","")) for c in cols]
+cm.index = cm.columns = labels
 
-fig, ax = plt.subplots(figsize=(7.6, 6.4))
+fig, ax = plt.subplots(figsize=(7.4, 6.2))
 im = ax.imshow(cm, cmap=DIVERGING, vmin=-1, vmax=1)
 ax.set_xticks(range(len(cm))); ax.set_xticklabels(cm.columns, rotation=45, ha="right")
 ax.set_yticks(range(len(cm))); ax.set_yticklabels(cm.index)
@@ -320,122 +295,129 @@ for i in range(len(cm)):
                 color=INK if abs(cm.iloc[i,j]) < .55 else "#ffffff")
 ax.grid(False)
 tidy(ax, "Correlation matrix", "diverging scale, gray = no relationship", pad=22)
-fig.colorbar(im, ax=ax, shrink=.72)
-plt.tight_layout(); plt.show()
+fig.colorbar(im, ax=ax, shrink=.72); plt.tight_layout(); plt.show()
 
-off = cm.loc[[SHORT[c.replace("_spend","")] for c in SPEND], [SHORT[c.replace("_spend","")] for c in SPEND]]
-off = off.where(~np.eye(len(off), dtype=bool)).abs().stack()
+ch = [NAME[c] for c in SPEND]
+off = cm.loc[ch, ch].where(~np.eye(len(ch), dtype=bool)).abs().stack()
 print(f"strongest channel-to-channel pair: {off.idxmax()} r = {off.max():.3f}")
 """)
 guide([
- "Which channel pairs are strongly related? When two channels move together, the data cannot tell you which one did the work — the *sum* is estimable, the split is not.",
- "Does any channel correlate with a **control**? That's worse than channel-to-channel, because the control is not something you can reallocate.",
- "Look at the bottom row. Are the raw channel-to-outcome correlations near zero? If so, what does that imply about how much work the model has to do — and would a naive analyst have concluded media doesn't work?",
- "Correlation is pairwise. Several channels can be jointly collinear without any single pair looking bad. What would you need to compute to detect that?",
+ "Are any two channels moving together strongly enough that the data cannot split their effects?",
+ "Look at the control and organic rows, not just the media block. Which relationship here is the largest, and is it between things you can act on?",
+ "Correlation is pairwise - several channels can be jointly collinear without any pair looking bad. What would you compute to detect that?",
 ], [VIF, CHAN])
 
 md("## 7. Do the controls behave, or does something dominate the outcome?")
 code("""
 z = lambda s: (s - s.mean())/s.std()
-fig, ax = plt.subplots(2, 1, figsize=(11, 6.2), sharex=True)
+fig, ax = plt.subplots(1, 2, figsize=(12, 3.8))
 
-ax[0].plot(df.time, z(df.conversions), color=BLUE, label="conversions")
-ax[0].plot(df.time, z(df.competitor_sales_control), color=ORANGE, label="competitor sales")
-ax[0].plot(df.time, z(df.sentiment_score_control), color=AQUA, label="sentiment")
+ax[0].plot(df.DATE, z(df[Y]), color=BLUE, label="revenue")
+ax[0].plot(df.DATE, z(df.competitor_sales_B), color=ORANGE, label="competitor sales")
+ax[0].plot(df.DATE, z(df.newsletter), color=AQUA, label="newsletter (organic)", linewidth=1.2)
 ax[0].legend(frameon=False, fontsize=8.5, ncol=3, labelcolor=INK2)
-tidy(ax[0], "Outcome and controls, standardised to a common scale",
-     "one axis, z-scored — no dual axis", "z-score")
+tidy(ax[0], "Outcome, control and organic on one scale", "z-scored - no dual axis", "z-score")
 
-ax[1].vlines(df.time, 0, df.Promo, color=BLUE, linewidth=1.4)
-tidy(ax[1], f"Promo  —  active in {(df.Promo>0).mean():.0%} of weeks", ylab="Promo")
+ax[1].scatter(df.competitor_sales_B/1e6, df[Y]/1e6, s=12, color=BLUE, alpha=.5, linewidths=0)
+b = np.polyfit(df.competitor_sales_B/1e6, df[Y]/1e6, 1)
+xs = np.linspace((df.competitor_sales_B/1e6).min(), (df.competitor_sales_B/1e6).max(), 50)
+ax[1].plot(xs, np.polyval(b, xs), color=INK, linewidth=1.4, linestyle="--")
+best = max(abs(df[c].corr(df[Y])) for c in SPEND)
+tidy(ax[1], f"competitor_sales_B vs revenue - r = {df.competitor_sales_B.corr(df[Y]):.3f}",
+     f"best media channel manages {best:.2f}", "Revenue (m)")
+ax[1].set_xlabel("Competitor sales (m)")
 plt.tight_layout(); plt.show()
 
-print(df[CONTROL + SPEND].corrwith(df.conversions).round(3).to_string())
+print(df[SPEND + ["competitor_sales_B", "newsletter"]].corrwith(df[Y]).round(3).to_string())
 """)
 guide([
- "Does any control track the outcome closely enough to absorb most of its variance? If so, media gets estimated off whatever is left over, and the ROIs come back small for a reason that has nothing to do with media.",
- "**Is anything here actually a mediator rather than a control?** If media influences it, and you control for it, you delete part of the effect you're trying to measure. This is the single most common way a well-intentioned control ruins an MMM.",
- "Is `Promo` a control or a channel? It has a budget owner and a spend implication — so whose lever is it, and should a reallocation be allowed to touch it?",
- "Sentiment: is it a cause of conversions, a consequence of them, or both? Write down which, because the model can't tell and will assume you were right.",
-], [CHAN, MER_CONF])
+ "Does the control absorb so much of the outcome that media is left estimating a small residual?",
+ "**Confounder, mediator, or seasonality proxy?** Google's guidance is that mediators must not be used as controls - they bias the treatment estimates. Which is this, and how would you argue it?",
+ "`newsletter` is organic and has no media cost. Does it belong in the model, and can it appear in a reallocation?",
+ "If you excluded the control entirely, what would you expect the media coefficients to do - and would you believe them?",
+], [MER_CTRL, CHAN])
 
 md("""
 ## 8. Is there visible carryover?
-Correlation of each channel's spend at lag *k* with conversions today.
-A peak at k>0, or a slow decay, is a hint that adstock is warranted.
+Correlation of each channel's spend at lag *k* with revenue today.
+A slow decay, rather than a spike at one lag, hints that adstock is warranted.
 """)
 code("""
 LAGS = range(0, 9)
 fig, axes = plt.subplots(1, 5, figsize=(13, 2.9), sharey=True)
-for ax, c in zip(axes, CH):
-    r = [df[f"{c}_spend"].shift(k).corr(df.conversions) for k in LAGS]
+for ax, c in zip(axes, SPEND):
+    r = [df[c].shift(k).corr(df[Y]) for k in LAGS]
     ax.bar(list(LAGS), r, color=BLUE, width=.62)
     ax.axhline(0, color=INK2, linewidth=.8)
-    tidy(ax, SHORT[c], ylab="corr" if c == "Channel0" else None)
+    tidy(ax, NAME[c], ylab="corr" if c == SPEND[0] else None)
     ax.set_xlabel("lag (weeks)"); ax.grid(axis="x", visible=False)
-fig.suptitle("Cross-correlation: spend at lag k vs conversions today",
+fig.suptitle("Cross-correlation: spend at lag k vs revenue today",
              x=0.005, ha="left", y=1.06, fontsize=12)
 plt.tight_layout(); plt.show()
 """)
 guide([
- "Does correlation peak at lag 0, or later? A later peak is a hint — not proof — that the effect takes time to land.",
- "Does it decay smoothly, or jump around? Smooth decay is consistent with adstock. Jumping around is usually noise wearing a costume.",
- "**The trap:** this is raw correlation with nothing controlled for. If both spend and conversions are seasonal, you will see a lag pattern that is pure seasonality. What would you need to do to rule that out before believing any of these shapes?",
- "How many weeks of carryover would you consider *plausible* for each media type, before looking? Writing that down first stops you from rationalising whatever the chart shows.",
+ "Does correlation decay smoothly, or jump around? Smooth decay is consistent with adstock; jumping is usually noise.",
+ "Which channel holds its correlation longest, and does that match what you would expect of that medium?",
+ "**The trap:** nothing is controlled here, and the outcome swings 3.31x seasonally. If a channel flights in peak weeks, its whole lag profile could be seasonality. What would you strip out first?",
+ "Write down the carryover length you consider plausible per medium *before* reading the chart.",
 ], [JIN, ROBYN])
 
 md("""
 ## 9. Is there visible diminishing returns?
-Weeks binned by spend level; the dot is mean conversions in that bin.
+Weeks binned by spend level; the dot is mean revenue in that bin.
 A flattening at the right-hand end is the saturation the model is meant to find.
 """)
 code("""
 fig, axes = plt.subplots(1, 5, figsize=(13, 3.0), sharey=True)
-for ax, c in zip(axes, CH):
-    s = df[f"{c}_spend"]
-    ax.scatter(s/1e3, df.conversions/1e6, s=10, color=BLUE, alpha=.35, linewidths=0)
-    q = pd.qcut(s, 5, duplicates="drop")
-    b = df.groupby(q, observed=True).agg(x=(f"{c}_spend","mean"), y=("conversions","mean"))
+for ax, c in zip(axes, SPEND):
+    ax.scatter(df[c]/1e3, df[Y]/1e6, s=10, color=BLUE, alpha=.35, linewidths=0)
+    q = pd.qcut(df[c].rank(method="first"), 5)
+    b = df.groupby(q, observed=True).agg(x=(c, "mean"), y=(Y, "mean"))
     ax.plot(b.x/1e3, b.y/1e6, color=ORANGE, marker="o", markersize=5)
-    tidy(ax, SHORT[c], ylab="Conversions (m)" if c == "Channel0" else None)
+    tidy(ax, NAME[c], ylab="Revenue (m)" if c == SPEND[0] else None)
     ax.set_xlabel("Spend (k)")
-fig.suptitle("Spend vs conversions, with quintile means (orange)",
+fig.suptitle("Spend vs revenue, with quintile means (orange)",
              x=0.005, ha="left", y=1.06, fontsize=12)
 plt.tight_layout(); plt.show()
+
+for c in SPEND:
+    q = pd.qcut(df[c].rank(method="first"), 5)
+    b = df.groupby(q, observed=True)[Y].mean()/1e6
+    print(f"{NAME[c]:14s} Q1 {b.values[0]:.2f}m -> Q5 {b.values[-1]:.2f}m   ({b.values[-1]-b.values[0]:+.2f}m)")
 """)
 guide([
- "Does the quintile line bend over at the top, stay straight, or slope down?",
- "**The trap:** this is bivariate and uncontrolled. High-spend weeks may also be high-season weeks, or weeks when a promo ran. Does any shape you see survive that suspicion?",
- "If a line slopes *downward*, resist reading it as 'this channel hurts sales'. What does it more likely say about **when** the planner chose to spend?",
- "This is the closest thing here to a preview of your actual deliverable — the saturation curve. If you can't see a bend now, what would it mean if the model produces a confident one later?",
+ "Which channels rise, and which stay flat? A flat line on a large channel is a bigger finding than a steep line on a small one.",
+ "Do any bend over at the top? If none do, is there no saturation - or is this view too crude to show it?",
+ "**The trap:** high-spend weeks may also be peak-season weeks. Every slope here could be seasonality. Does any of it survive that suspicion?",
+ "This is the closest preview of your deliverable. If a channel looks flat here and the model later gives it a confident high ROI, which will you believe?",
 ], [JIN, MER_ROI])
 
-md("## 10. Are spend and impressions consistent?")
+md("## 10. Are spend and exposure consistent?")
 code("""
-fig, axes = plt.subplots(1, 5, figsize=(13, 2.9), sharex=True)
-for ax, c in zip(axes, CH):
-    cpm = (df[f"{c}_spend"] / df[f"{c}_impression"].replace(0, np.nan)) * 1000
-    ax.plot(df.time, cpm, color=BLUE)
-    tidy(ax, f"{SHORT[c]}  (r={df[f'{c}_spend'].corr(df[f'{c}_impression']):.3f})",
-         ylab="Cost per 1k impressions" if c == "Channel0" else None)
-    ax.tick_params(axis="x", labelrotation=45, labelsize=7)
-fig.suptitle("Implied CPM over time — flat means spend and impressions are interchangeable",
-             x=0.005, ha="left", y=1.06, fontsize=12)
+fig, axes = plt.subplots(1, 2, figsize=(11, 3.2))
+for ax, (s, e) in zip(axes, EXPOSURE.items()):
+    unit = (df[s] / df[e].replace(0, np.nan))
+    ax.plot(df.DATE, unit, color=BLUE)
+    tidy(ax, f"{NAME[s]} - cost per {'impression' if e.endswith('_I') else 'click'}",
+         f"r(spend, exposure) = {df[s].corr(df[e]):.3f}  |  CV = {unit.std()/unit.mean():.3f}",
+         "Unit cost")
+    ax.tick_params(axis="x", labelrotation=30, labelsize=8)
 plt.tight_layout(); plt.show()
+print("Offline channels (TV, out-of-home, print) have no exposure column - spend only.")
 """)
 guide([
- "Is CPM flat, drifting, or jumpy? Flat means spend and impressions carry identical information and the choice between them is free.",
- "If CPM drifts, the choice matters: **spend measures what it cost, impressions measure what was delivered.** Media effects come from delivery; budget decisions are made in money. Which unit belongs on which side of your model?",
- "Rising CPM over time would be a real-world signal of auction pressure or audience exhaustion. Does anything like that appear here — and if not, what does that tell you about the simulation?",
- "Whichever unit you choose, you'll need the other one to convert a modelled effect back into a budget recommendation. Note now how you'd do that.",
-], [MER_DATA, MER_NAT])
+ "Is unit cost flat or drifting? Flat means spend and exposure carry the same information; drifting means the choice matters.",
+ "Rising unit cost over time would suggest auction pressure or audience exhaustion. Visible here, and over what period?",
+ "**Spend measures what it cost; exposure measures what was delivered.** Media effects come from delivery, budget decisions are made in money. Which unit goes on which side of your model?",
+ "Three channels have no exposure data at all. Does that force one consistent choice across all five?",
+], [MER_DATA, MER_SPEC])
 
 md("""
 ---
 ## Where this leaves us
 
 Fill in once the sections above are worked through. Anything that turns into a
-project decision goes into `DECISIONS.md` — not here.
+project decision goes into `DECISIONS.md` - not here.
 
 **Questions this raised that the data can't answer:**
 
@@ -446,23 +428,23 @@ project decision goes into `DECISIONS.md` — not here.
 ### Further reading
 
 **The two papers behind most MMM practice**
-- [Jin et al. — Bayesian Methods for MMM with Carryover and Shape Effects](https://research.google/pubs/bayesian-methods-for-media-mix-modeling-with-carryover-and-shape-effects/) — where adstock and Hill saturation come from
-- [Chan & Perry — Challenges and Opportunities in Media Mix Modeling](https://research.google/pubs/challenges-and-opportunities-in-media-mix-modeling/) — the honest account of what MMM can and cannot identify. Read this one before defending any result.
+- [Jin et al. - Bayesian Methods for MMM with Carryover and Shape Effects](https://research.google/pubs/bayesian-methods-for-media-mix-modeling-with-carryover-and-shape-effects/) - where adstock and Hill saturation come from
+- [Chan & Perry - Challenges and Opportunities in Media Mix Modeling](https://research.google/pubs/challenges-and-opportunities-in-media-mix-modeling/) - the honest account of what MMM can and cannot identify
+
+**Controls, mediators and confounders**
+- [Meridian - control variables](https://developers.google.com/meridian/docs/advanced-modeling/control-variables) - read before deciding what to do with `competitor_sales_B`
 
 **Where the field is now**
-- [Open-Source Media and Marketing Mix Modeling — practice-oriented overview](https://link.springer.com/article/10.1007/s40547-026-00161-4)
+- [Open-Source Media and Marketing Mix Modeling](https://link.springer.com/article/10.1007/s40547-026-00161-4)
 - [Packaging Up Media Mix Modeling (arXiv)](https://arxiv.org/abs/2403.14674)
-- [Estimating Ad Effectiveness Using Geo Experiments](https://research.google/pubs/estimating-ad-effectiveness-using-geo-experiments-in-a-time-based-regression-framework/) — relevant to the Phase 5 geo step
 
 **Tooling**
-- [Meridian docs](https://developers.google.com/meridian) · [model specification](https://developers.google.com/meridian/docs/basics/model-spec) · [getting-started notebook](https://github.com/google/meridian/blob/main/demo/Meridian_Getting_Started.ipynb)
-- [Robyn — adstock and saturation](https://facebookexperimental.github.io/Robyn/docs/features) — different framework, same concepts, often explained more plainly
+- [Robyn - adstock and saturation](https://facebookexperimental.github.io/Robyn/docs/features) - this dataset's origin
+- [Meridian docs](https://developers.google.com/meridian) - the rejected candidate's framework
 - [PyMC-Marketing MMM example](https://www.pymc-marketing.io/en/stable/notebooks/mmm/mmm_example.html)
 """)
 
 # --- preserve Caio's work -----------------------------------------------------
-# The notebook is generated, but the "Your read" cells are HIS. Regenerating must
-# never destroy them. Pull the existing text forward, in order, before writing.
 OUT = "notebooks/01_eda.ipynb"
 kept = 0
 if os.path.exists(OUT):
@@ -473,16 +455,9 @@ if os.path.exists(OUT):
                  if c.cell_type == "markdown" and c.source.startswith("**Your read:**")]
     for i, text in zip(new_reads, old_reads):
         if text.strip() != "**Your read:**":
-            C[i] = nbf.v4.new_markdown_cell(text)
-            kept += 1
-    # Warn about anything else he added that generation will drop.
-    extra = [c for c in old.cells
-             if c.cell_type == "code" and not c.source.strip()
-             and c.source not in {x.source for x in C}]
-    if extra:
-        print(f"note: dropping {len(extra)} empty cell(s) added outside the generator")
+            C[i] = nbf.v4.new_markdown_cell(text); kept += 1
 
 nb["cells"] = C
 nb.metadata.kernelspec = {"display_name": "Python 3", "language": "python", "name": "python3"}
 nbf.write(nb, OUT)
-print(f"wrote {OUT} — {len(C)} cells" + (f", preserved {kept} filled 'Your read' cell(s)" if kept else ""))
+print(f"wrote {OUT} - {len(C)} cells" + (f", preserved {kept} filled 'Your read' cell(s)" if kept else ""))

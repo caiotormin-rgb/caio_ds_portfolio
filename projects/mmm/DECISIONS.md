@@ -573,3 +573,37 @@ with a documented go/no-go, is legitimate `01`/`03` content whichever way we go.
 (B) keep Meridian and reframe the deliverable as a readiness assessment,
 (C) build our own simulator with known ground truth and a longer period.
 
+## 2026-08-18 — Phase 2 — D8: SWITCHED to Robyn `dt_simulated_weekly` (option A)
+Caio chose A after the readiness audit. Reverses D1.
+
+**Done:**
+- Robyn's `dt_simulated_weekly` and `dt_prophet_holidays` re-fetched and converted
+  to CSV **in Python via `pyreadr`**; the `.RData` artefacts were deleted after
+  conversion. **No R anywhere.** The original D1 rationale ("no R") conflated
+  tooling with data and was wrong.
+- `src/01_load.py` rewritten: `weekly()`, `holidays(country)`, and `validate()`.
+  Beyond the usual integrity checks it now asserts **the two properties that
+  justified the switch** — at least 4 of 5 channels dark >20% of weeks, and month
+  peak/trough seasonality above 3.0x. If either stops holding, the identification
+  argument in `01`/`03` is void and the loader fails loudly.
+- EDA notebook fully regenerated on the new data: 53 cells, 9 figures, 10 reads,
+  no errors. Channel names are now **real** (TV, out-of-home, print, Facebook,
+  paid search), so **D3's invented naming convention is obsolete** — dropped.
+- Meridian files moved to `data/audit/`. They are evidence for the readiness
+  assessment, not modelling inputs.
+
+**Marked STALE, rewrite required:** `01-data-sources.md`, `02-data-dictionary.md`
+(both describe Meridian as primary), and `src/02_simulate_sources.py` (references
+`Channel0-4` and `conversions`, which no longer exist).
+
+**Also dead:** D2's geo robustness step — Robyn is national only. And D6's
+augmentation columns, until rebuilt against the new schema.
+
+**What the new data looks like:** 208 weeks 2015-11 to 2019-11; TV / OOH / print /
+Facebook / paid search; revenue outcome; `newsletter` organic;
+`competitor_sales_B` control; `events` unusable (206/208 "na"). Seasonality
+3.31x, no trend (p=0.94), 4/5 channels flighted 51-59% dark, all five channels
+sloping upward across spend quintiles, and unit cost genuinely varying
+(Facebook CV 0.252, search CV 0.124). Its problem is `competitor_sales_B` at
+r=0.92 with revenue — a modelling problem, which is the kind worth having.
+

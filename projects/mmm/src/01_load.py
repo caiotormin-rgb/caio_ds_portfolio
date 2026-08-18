@@ -1,4 +1,4 @@
-"""Phase 2 — ingest and validate the Meridian simulated datasets.
+"""Phase 2 — ingest and validate the modelling dataset.
 
 Run directly to assert every integrity property this project relies on:
     python src/01_load.py
@@ -7,68 +7,83 @@ Import the loaders from a notebook:
     import importlib.util
     spec = importlib.util.spec_from_file_location("mmm", "../src/01_load.py")
     mmm = importlib.util.module_from_spec(spec); spec.loader.exec_module(mmm)
-    df = mmm.national()
+    df = mmm.weekly()
+
+SOURCE: Robyn's `dt_simulated_weekly`, converted once to CSV with `pyreadr`.
+No R is involved anywhere — the RData was read in Python and the artefact
+deleted. See DECISIONS.md D8 for why this replaced the Meridian sample.
+
+`data/audit/` holds the rejected Meridian candidates. They are evidence for the
+data-readiness assessment in `01`/`03`, not modelling inputs.
 """
 from pathlib import Path
 import pandas as pd
 
 RAW = Path(__file__).resolve().parents[1] / "data" / "raw"
-NATIONAL = RAW / "meridian_national_all_channels.csv"
-GEO      = RAW / "meridian_geo_all_channels.csv"
+WEEKLY = RAW / "robyn_simulated_weekly.csv"
+HOLIDAYS = RAW / "robyn_prophet_holidays.csv"
 
-CHANNELS = [f"Channel{i}" for i in range(5)]
-SPEND    = [f"{c}_spend" for c in CHANNELS]
-IMPR     = [f"{c}_impression" for c in CHANNELS]
-CONTROLS = ["competitor_sales_control", "sentiment_score_control", "Promo"]
-OUTCOME  = "conversions"
+# Robyn's suffix convention: _S = spend, _I = impressions, _P = clicks,
+# _B = baseline/context. Channels are NAMED here — no labelling convention needed.
+SPEND = ["tv_S", "ooh_S", "print_S", "facebook_S", "search_S"]
+EXPOSURE = {"facebook_S": "facebook_I", "search_S": "search_clicks_P"}
+ORGANIC = ["newsletter"]
+CONTROLS = ["competitor_sales_B", "events"]
+OUTCOME = "revenue"
+
+CHANNEL_LABEL = {
+    "tv_S": "TV", "ooh_S": "Out-of-home", "print_S": "Print",
+    "facebook_S": "Facebook", "search_S": "Paid search",
+}
 
 
-def national() -> pd.DataFrame:
-    df = pd.read_csv(NATIONAL, parse_dates=["time"]).sort_values("time")
+def weekly() -> pd.DataFrame:
+    df = pd.read_csv(WEEKLY, parse_dates=["DATE"]).sort_values("DATE")
     return df.reset_index(drop=True)
 
 
-def geo() -> pd.DataFrame:
-    df = pd.read_csv(GEO, parse_dates=["time"])
-    df = df.drop(columns=[c for c in df.columns if c.startswith("Unnamed") or c == ""])
-    return df.sort_values(["geo", "time"]).reset_index(drop=True)
+def holidays(country: str | None = None) -> pd.DataFrame:
+    df = pd.read_csv(HOLIDAYS, parse_dates=["ds"])
+    return df[df.country == country].reset_index(drop=True) if country else df
 
 
 def validate() -> None:
-    n, g = national(), geo()
+    d = weekly()
 
     # --- shape and regularity -------------------------------------------------
-    assert len(n) == 156, f"national: expected 156 weeks, got {len(n)}"
-    assert n.time.is_unique, "national: duplicate weeks"
-    assert (n.time.diff().dropna().dt.days == 7).all(), "national: irregular weekly spacing"
-    assert not n.isna().any().any(), "national: missing values"
-
-    assert g.geo.nunique() == 40, f"geo: expected 40 geos, got {g.geo.nunique()}"
-    assert g.time.nunique() == 156, "geo: expected 156 weeks"
-    assert len(g) == 40 * 156, "geo: panel is not balanced"
-    assert not g.isna().any().any(), "geo: missing values"
+    assert len(d) == 208, f"expected 208 weeks, got {len(d)}"
+    assert d.DATE.is_unique, "duplicate weeks"
+    assert (d.DATE.diff().dropna().dt.days == 7).all(), "irregular weekly spacing"
+    assert set(d.DATE.dt.day_name()) == {"Monday"}, "weeks are not Monday-dated"
+    assert not d.isna().any().any(), "missing values"
 
     # --- expected columns -----------------------------------------------------
-    for col in SPEND + IMPR + CONTROLS + [OUTCOME, "revenue_per_conversion"]:
-        assert col in n.columns, f"national: missing column {col}"
+    for col in SPEND + list(EXPOSURE.values()) + ORGANIC + CONTROLS + [OUTCOME]:
+        assert col in d.columns, f"missing column {col}"
 
     # --- value sanity ---------------------------------------------------------
-    assert (n[SPEND] >= 0).all().all(), "national: negative spend"
-    assert (n[OUTCOME] > 0).all(), "national: non-positive conversions"
+    assert (d[SPEND] >= 0).all().all(), "negative spend"
+    assert (d[OUTCOME] > 0).all(), "non-positive revenue"
+    assert (d.newsletter > 0).all(), "non-positive newsletter volume"
 
-    # --- the load-bearing property: national IS geo, aggregated ---------------
-    # Documented in DECISIONS.md and relied on by the Phase 5 geo robustness step.
-    # If this ever fails, the two files are no longer the same simulation.
-    agg = g.groupby("time")[[OUTCOME] + SPEND].sum().sort_index()
-    ref = n.set_index("time")[[OUTCOME] + SPEND].sort_index()
-    rel = ((agg - ref).abs() / ref.abs()).max().max()
-    assert rel < 1e-9, f"national != geo aggregated (max relative diff {rel:.2e})"
+    # --- the properties that made us choose this dataset ----------------------
+    # If these ever stop holding, the identification argument in 01/03 is void.
+    flighted = sum((d[c] == 0).mean() > 0.20 for c in SPEND)
+    assert flighted >= 4, f"expected >=4 flighted channels, got {flighted}"
+    mm = d.groupby(d.DATE.dt.month)[OUTCOME].mean()
+    assert mm.max() / mm.min() > 3.0, "seasonality weaker than expected"
 
-    print(f"national : {len(n)} weeks, {n.time.min():%Y-%m-%d} to {n.time.max():%Y-%m-%d}")
-    print(f"geo      : {g.geo.nunique()} geos x {g.time.nunique()} weeks = {len(g)} rows")
-    print(f"aggregation identity holds (max relative diff {rel:.1e})")
-    print(f"paid spend {n[SPEND].sum().sum():,.0f} | "
-          f"revenue {(n[OUTCOME] * n.revenue_per_conversion).sum():,.0f}")
+    h = holidays()
+    assert len(h) == 87_651 and h.country.nunique() == 123
+
+    print(f"weekly   : {len(d)} weeks, {d.DATE.min():%Y-%m-%d} to {d.DATE.max():%Y-%m-%d}")
+    print(f"channels : {', '.join(CHANNEL_LABEL[c] for c in SPEND)}")
+    print(f"flighted : {flighted}/5 channels dark >20% of weeks "
+          f"({', '.join(f'{CHANNEL_LABEL[c]} {(d[c] == 0).mean():.0%}' for c in SPEND)})")
+    print(f"season   : {mm.max() / mm.min():.2f}x month peak/trough")
+    print(f"spend    : {d[SPEND].sum().sum():,.0f} | revenue {d[OUTCOME].sum():,.0f} "
+          f"| ratio {d[SPEND].sum().sum() / d[OUTCOME].sum():.1%}")
+    print(f"holidays : {len(h):,} rows, {h.country.nunique()} countries")
     print("all assertions passed")
 
 
