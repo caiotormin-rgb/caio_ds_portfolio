@@ -786,3 +786,36 @@ treatment, demand proxies in/out, and carryover length. Coincidentally this is
 also what industry practice demands of MMM deliverables: ROI as ranges, never
 point estimates.
 
+## 2026-08-18 — Phase 2 — D11: spend, not exposure, for all five channels
+**Caio:** "agreed."
+**Chose:** model on spend across all five channels.
+**Why, on evidence rather than convenience:** deseasonalised, spend and exposure
+give identical correlations with revenue (Facebook +0.113 vs +0.110; search
++0.093 vs +0.095); unit cost shows no trend across four years (r = -0.013 and
+-0.081), so there is no auction-pressure story exposure would capture; and TV,
+out-of-home and print have no exposure column at all, so exposure would force a
+mixed specification covering 2 of 5 channels.
+**Rules out:** exposure-based and mixed specifications. `facebook_I` and
+`search_clicks_P` are retained for diagnostics only, never as model inputs.
+
+## 2026-08-18 — EDA notebook — first-pass notes consolidated
+Swept and rewritten at Caio's request: brief on the unremarkable, explicit tags
+on what carries into later phases. 767 words across 11 sections, 9 tagged
+**[MODELING]** or **[FEATURE ENG]**.
+
+**The findings tagged as consequential:**
+- **[FEATURE ENG]** drop `events`; DE holidays usable for 33 of 208 weeks, minus
+  Reformation Day at n=1.
+- **[MODELING]** seasonality explains 80.7% and media adds 2.6 points on top —
+  the entire signal budget. Two Fourier harmonics suffice.
+- **[MODELING]** `newsletter` is a demand proxy (symmetric lead/lag peaking at
+  zero), so it belongs in the D10 bounds alongside `competitor_sales_B`.
+- **[MODELING]** decay is identifiable for all five channels, but the data will
+  not corroborate any particular value — the estimate must not be presented as
+  an empirical finding.
+- **[MODELING]** no saturation bend is visible anywhere, so the Hill curve comes
+  from the functional form. This limits how far the response curves can be
+  claimed as evidence.
+- Media-to-media collinearity is a non-issue (VIF 1.03-1.05) — worth stating
+  because it removes the usual reason MMMs come out unstable.
+

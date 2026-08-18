@@ -31,73 +31,54 @@ VIF      = ("Multicollinearity - what it does to coefficient estimates", "https:
 OSS      = ("Open-Source Media and Marketing Mix Modeling - practice overview", "https://link.springer.com/article/10.1007/s40547-026-00161-4")
 
 OBS = [
- [
-  "Clean: 208 consecutive Monday weeks, no gaps, no duplicates, no missing values, no negative spend, no zero-revenue weeks.",
-  "**`events` is unusable** - 206 of 208 weeks are `\"na\"`, with `event1` and `event2` occurring once each. Drop it rather than pretend it controls for anything.",
-  "**Partial years at both ends**: 2015 contributes 6 weeks (peak season only), 2019 contributes 45 (missing the November peak). Any raw year-over-year comparison is an artefact.",
-  "Revenue spans 672k-3.83m, max/min 5.69. Wide, and mostly seasonal - see section 2.",
+ [  # 1 completeness
+  "`events` is dead - 206 of 208 weeks are `\"na\"`. **[FEATURE ENG] drop it.**",
+  "Partial years: 2015 has 6 weeks (peak only), 2019 has 45 (no November). **Rules out year-over-year comparison entirely.**",
+  "208 rows caps how many parameters the model can carry.",
  ],
- [
-  "**No trend at all**: -66 per week, p = 0.94. A flat, mature brand over four years.",
-  "**Seasonality is strong - 3.31x month peak/trough**, June 0.87m rising to November 2.87m. This is the dominant feature of the outcome.",
-  "So the baseline the model must find is almost entirely seasonal. Anything tracking that annual wave will compete with media for credit - hold that until section 7.",
-  "A holiday calendar is available (`dt_prophet_holidays`, 123 countries). **The market is Germany** - never formally stated, but Robyn's source gives three converging signals: the commented provenance path `data/de_simulated_data.csv`, and `prophet_country = \"DE\"` in both the documented example and the official demo. 37 holiday dates fall inside the window.",
+ [  # 2 outcome
+  "No trend (p = 0.94). **Seasonality at 3.31x is the dominant feature of the outcome** - the baseline the model must find is almost entirely seasonal.",
+  "**[FEATURE ENG]** DE holiday calendar available, 33 of 208 weeks affected. Reformation Day appears once (2017) and is unusable at n=1.",
  ],
- [
-  "Seasonality was never controlled anywhere before this point - every correlation in sections 6, 8 and 9 is raw.",
-  "**TV survives every treatment** at 0.29-0.31 and comes out strongest under all four. **Out-of-home lands at or below zero under all four.**",
-  "**Paid search's raw lead was mostly the calendar** - it falls from 0.443 to somewhere between 0.09 and 0.16 depending on method. **Facebook nearly vanishes**, from 0.318 to 0.007-0.113.",
-  "The Fourier row deserves most weight: it costs 7 parameters against 49 for month-by-year, and smooth seasonality is closer to how the calendar actually behaves than a step function.",
+ [  # 2b seasonality — the pivotal section
+  "**[MODELING] Seasonality alone explains 80.7% of revenue. All five channels add 2.6 points on top. That is the entire signal budget for this project** - expect wide intervals and never quote a point estimate without them.",
+  "**TV is strongest under all four treatments (0.29-0.31). Out-of-home is at or below zero under all four.** Search's raw lead and Facebook's apparent efficiency were both the calendar.",
+  "**[MODELING] Two harmonics is enough** - one already captures 0.792 of the 0.807 that three reach, and more than three overfits.",
+  "Over-correction is *not* the main risk: only 4-22% of each channel is seasonally absorbable (search highest at 0.22, OOH lowest at 0.04).",
  ],
- [
-  "**Out-of-home is 61.9% of paid spend.** TV 21.3%, search 8.5%, print 5.3%, **Facebook just 3.1%**.",
-  "That mix is atypical for a consumer brand, so conclusions about *which* channel wins will not generalise. Say so in the readout rather than leaving a reviewer to notice.",
-  "Total paid spend is only **3.8% of revenue** - light, more mature-CPG than DTC.",
-  "**Hold these two numbers together: out-of-home takes 61.9% of the budget and has the weakest outcome correlation of any channel (+0.095). Paid search takes 8.5% and has the strongest (+0.443).** If that survives controlling for seasonality, the reallocation writes itself - and if it doesn't, understanding why is the project.",
+ [  # 3 money split
+  "**Out-of-home takes 61.9% of budget with the weakest correlation (+0.095). Paid search takes 8.5% with the strongest (+0.443).** The ranking is near-inverse to spend. This tension is the project.",
+  "Facebook at 3.1% of spend - expect wide intervals on it whatever the model says.",
  ],
- [
-  "**Four of five channels are genuinely flighted**: OOH dark 59% of weeks, print 58%, TV 56%, Facebook 51%.",
-  "**Paid search is the exception at 15% - effectively always-on.** Two regimes in one dataset.",
-  "This is the property that makes carryover estimable: long dark stretches are where an effect can be watched decaying. Note that 'average weekly spend' is meaningless for the flighted four and must not appear in the readout.",
+ [  # 4 flighting
+  "Four of five channels flighted (51-59% dark), each with 10-15 dark runs of 3+ weeks. Search is always-on.",
+  "**[MODELING]** Search has AC(1) +0.712 against *negative* AC(1) for the other four. Smooth series make adstock transforms look alike, so its decay is identifiable but least precise. Darkness is not what matters - jumpiness is.",
  ],
- [
-  "Enormous variation: CV **1.92 TV, 1.94 OOH, 1.74 print, 1.47 Facebook**, against 0.79 for search.",
-  "Max-to-min ratios reach 1,518x (OOH) and 698x (TV), driven by on/off cycling rather than outliers.",
-  "**This is the opposite of the rejected dataset's problem.** Identification here is plausible; the constraint is elsewhere.",
+ [  # 5 variation
+  "Variation is ample (CV 0.79-1.94, max/min up to 1,518x) and this is exactly where the rejected dataset failed.",
+  "**But variation is not the binding constraint - signal is.** See 2b: 2.6 points of incremental explanatory power.",
  ],
- [
-  "**Channels are almost independent of each other** - strongest pair is TV-Facebook at 0.15. Multicollinearity between media is not a problem here.",
-  "**But `competitor_sales_B` correlates 0.92 with revenue**, far above any channel (best is search at 0.44). This single variable is the central modelling problem.",
-  "Two other links: newsletter-search 0.60, competitor-search 0.48. Search is entangled with both the organic channel and the control.",
-  "Bottom row, ranked: search +0.443, TV +0.420, Facebook +0.318, print +0.230, **out-of-home +0.095**. The ordering is almost exactly inverse to budget share.",
+ [  # 6 collinearity
+  "**Media-to-media collinearity is a non-issue: VIF 1.03-1.05.** Unusual, and worth stating - it removes the most common reason MMMs come out unstable.",
+  "**[MODELING]** `newsletter` correlates +0.52 with search (deseasonalised) and ~0 with everything else, with a **symmetric lead/lag profile peaking at zero** - the signature of a common cause, not of one driving the other. Treat it as a demand proxy, like `competitor_sales_B`.",
  ],
- [
-  "`competitor_sales_B` at **r = 0.92** will absorb nearly all outcome variance if entered as-is. Media would then be estimated off a small residual and come back conservative - possibly uselessly so.",
-  "Revenue swings 3.31x seasonally and this variable tracks that swing. It looks like it carries **category seasonality**, not competitive pressure. That is a hypothesis, not a finding - what would test it?",
-  "Google's guidance is blunt: *\"Mediator variables shouldn't be included as control variables, because including them will bias causal inference estimates.\"* Confounder, mediator, or seasonality proxy? The data cannot settle it; `05-analysis-plan.md` must.",
-  "`newsletter` is organic - no media cost, so it stays out of any reallocation, but it may still belong in the model.",
+ [  # 7 controls
+  "**`competitor_sales_B` at r = 0.92 versus 0.44 for the best channel.** Enter it as-is and media is estimated off a small residual.",
+  "**[MODELING]** Confounder, mediator, or seasonality proxy - the data cannot decide. Google's guidance: mediators must not be used as controls. **D10 resolves this by fitting both ways and reporting the span.**",
+  "The complete list of non-media variables is `competitor_sales_B`, `newsletter`, DE holidays and time. No price, no distribution, no macro. Nothing else exists.",
  ],
- [
-  "**Real decay shapes, unlike the rejected dataset.** TV peaks at lag 0 (+0.42) but stays elevated at +0.23 to +0.35 all the way to lag 8 - persistent carryover.",
-  "Paid search peaks at +0.44 and decays steadily to +0.21 by lag 8 - a shorter, cleaner tail.",
-  "OOH is weak throughout (+0.08 to +0.17) despite being the largest channel by spend. Hold that against section 9.",
-  "**Still uncontrolled.** With 3.31x seasonality in the outcome, some of every one of these shapes is seasonality rather than carryover. What would you strip out before believing them?",
+ [  # 8 carryover
+  "**The chart below is raw, and raw cross-correlation cannot detect carryover in seasonal data** - it will always draw a decay curve. Deseasonalised, every lag profile here is noise.",
+  "**[MODELING]** Decay is still *identifiable* for all five (min adstock-pair correlation 0.59-0.80). The parameter can be estimated; the data simply will not corroborate any particular value. Say so rather than letting a prior pass as a finding.",
  ],
- [
-  "**All five channels slope upward across spend quintiles** - the first genuinely encouraging chart in this notebook.",
-  "Facebook is steepest (+0.97m from Q1 to Q5) despite being only 3.1% of spend. TV +0.71m, search +0.80m, print +0.43m.",
-  "**Out-of-home is nearly flat (+0.13m) while consuming 61.9% of the budget.** If that survives controlling for seasonality, it is the headline of the whole project.",
-  "None bend over yet - no visible saturation. Either the brand is not spending into diminishing returns, or the bivariate view is too crude to show it.",
+ [  # 9 diminishing returns
+  "All five slope upward raw. **Out-of-home is nearly flat (+0.13m) against Facebook's +0.97m, on twenty times the budget.**",
+  "**[MODELING] No saturation bend anywhere.** The Hill curve will come from the functional form, not from visible curvature - which limits how much the response curves can be claimed as an empirical finding.",
  ],
- [
-  "Only Facebook and search have exposure twins; the offline channels are spend-only.",
-  "**Unit cost genuinely varies**: Facebook cost-per-impression CV 0.252, search cost-per-click CV 0.124. Spend and exposure are *not* interchangeable here - a real choice with consequences.",
-  "Spend correlates 0.991 with impressions (Facebook) and 0.983 with clicks (search). High, but the residual is where auction pressure and efficiency changes live.",
-  "Media effects come from delivery; budget decisions are made in money. You will need the conversion between them either way.",
-  "**The binding constraint:** TV, out-of-home and print have no exposure column at all. So an exposure-based specification can cover at most 2 of 5 channels, or must be abandoned for consistency. That is a property of the data, not a preference - decide it in `05`, not mid-model.",
+ [  # 10 spend vs exposure
+  "**Decision made: spend for all five channels.** Exposure was tested and rejected on evidence - identical to the third decimal deseasonalised, no unit-cost trend over four years, and only 2 of 5 channels have it at all.",
  ],
 ]
-
 
 def guide(points, refs):
     body = "#### What to look for\n\n" + "\n".join(f"- {p}" for p in points)
