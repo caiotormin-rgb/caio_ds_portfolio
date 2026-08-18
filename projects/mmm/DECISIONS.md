@@ -739,3 +739,29 @@ Misplaced reads repaired.
 **Lesson worth keeping:** the mechanism protecting his work was itself the thing
 that corrupted it. Any "safe" preservation scheme needs a stable key.
 
+## 2026-08-18 — Phase 2 — CLAUDE ERROR, corrected by Caio: search adstock IS identifiable
+Claude claimed paid search's adstock was "unidentifiable" because it is never
+dark for more than 2 weeks. **Wrong, and it would have driven a bad
+specification.** Caio: *"can't we rely on level of spend alone? it may never go
+dark but spend oscillates."*
+
+**Test run:** correlation between `adstock(spend, theta)` series across
+theta in {0, 0.2, 0.4, 0.6, 0.8}. If all pairs sit near 0.99 the decay parameter
+is unidentified. Minimum pair correlation by channel — print 0.593, TV 0.604,
+OOH 0.608, Facebook 0.611, **paid search 0.801**. All identifiable; search
+weakest but well clear of degenerate.
+
+**The right diagnostic is jumpiness, not darkness.** Search moves a median 12.7%
+week-over-week with 39 weeks of >30% swings. What weakens it is smoothness:
+search has AC(1) = +0.712 while the other four have *negative* AC(1)
+(-0.065 to -0.246) — burst-stop-burst makes adstock transforms maximally
+distinguishable.
+
+**Consequence:** search stays in the carryover specification. Expect wider
+intervals on its decay parameter, and say so rather than reporting a point
+estimate. (Threshold of 0.9 is a Claude rule of thumb, not a standard.)
+
+**Caio's read on carryover, captured to notebook s8:** the raw chart is
+contaminated, the deseasonalised version is noise, and *"the data does not decide
+this — the specification will"*. That must be stated explicitly in `05`.
+
