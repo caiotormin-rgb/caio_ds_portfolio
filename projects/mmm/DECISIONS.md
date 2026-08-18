@@ -277,3 +277,25 @@ thing.
 `data/candidates/` renamed to `data/raw/` now that the shortlist is closed.
 The EDA notebook calls `mmm.validate()` before any analysis runs.
 
+## 2026-08-18 — Phase 2 — 02-data-dictionary written, two corrections to earlier claims
+Field stats computed from the data, not carried over from memory. Two things
+Claude had stated earlier were wrong and are corrected in the document:
+
+1. **`revenue_per_conversion` is not constant.** It has 156 distinct values.
+   The practical conclusion still holds — CV is 0.076%, full range spans 0.45%
+   of the mean, and `revenue` correlates 0.99994 with `conversions` — but the
+   file does vary and the document says so.
+2. **Zero-week shares quoted earlier came from the wrong file.** Those figures
+   (Channel0 11.1%, Channel1 29.0%, Channel2 58.4% ...) were from
+   `hypothetical_geo_all_channels.csv`. In the actual national file **only
+   Channel2 has dark weeks, at 2.6%** — every other channel is always-on.
+
+**New finding: CPM is fixed per channel** (7.3327 / 9.6412 / 7.4309 / 7.7928 /
+7.7919), constant to floating-point noise. Spend and impressions are therefore
+an exact linear rescale of one another, not merely highly correlated. The
+spend-vs-exposure modelling choice carries no information either way — it is a
+units decision, not a modelling one.
+
+**Also noted:** `Promo` is never zero — a continuous always-on intensity, not an
+on/off flag as previously described.
+

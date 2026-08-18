@@ -16,8 +16,8 @@ rather than glossed over in the readout.
 
 ## Primary source
 
-| | |
-|---|---|
+|  |  |
+| --- | --- |
 | **Dataset** | `national_all_channels.csv` |
 | **Owner** | Google, shipped with the open-source [Meridian](https://github.com/google/meridian) MMM framework |
 | **Obtained** | `raw.githubusercontent.com/google/meridian/main/meridian/data/simulated_data/csv/national_all_channels.csv` |
@@ -46,7 +46,7 @@ and add geo as a bounded robustness check.
 Each was downloaded and profiled, not judged from documentation.
 
 | Candidate | Why rejected |
-|---|---|
+| --- | --- |
 | Robyn `dt_simulated_weekly` | R-based toolchain, ruled out at D1. Data itself was viable — 208 weeks, named channels |
 | `pymc-marketing/mmm_example.csv` | Only 2 channels, in unitless 0–1 values. **Cannot support a budget reallocation** — no currency to reallocate |
 | Meridian `hypothetical_geo_all_channels.csv` | **No outcome column**, despite documentation describing one. 38 weeks |
