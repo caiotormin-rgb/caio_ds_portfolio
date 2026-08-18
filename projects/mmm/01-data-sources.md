@@ -52,6 +52,34 @@ Each was downloaded and profiled, not judged from documentation.
 | Meridian `hypothetical_geo_all_channels.csv` | **No outcome column**, despite documentation describing one. 38 weeks |
 | Meridian `national_media` / `geo_media` (± `_rf`) | 4 paid channels, no organic, no Promo. The `_rf` pair adds Channel3 reach/frequency — parked, not rejected on quality |
 
+## Added sources (`data/simulated/augmented_weekly.csv`)
+
+Built by `src/02_simulate_sources.py`, keyed on `time`, joins 1:1 to the primary
+file. **`data/raw/` is never written to** — Google's columns stay exactly as
+shipped, and every added column is tagged below.
+
+| Group | Columns | Provenance |
+|---|---|---|
+| Holiday calendar | `holiday_count`, `holiday_newyear`, `holiday_memorial`, `holiday_july4`, `holiday_juneteenth`, `holiday_labor`, `holiday_thanksgiving`, `holiday_christmas`, `weeks_to_christmas` | **REAL** — US federal calendar via the `holidays` package (v0.103) |
+| Brand demand | `brand_interest_index` | **SIMULATED** — Google-Trends-shaped |
+| Reach diagnostics | `Channel1_reach`, `Channel1_frequency`, `Channel4_reach`, `Channel4_frequency` | **SIMULATED** |
+
+**Market assumption:** the US federal calendar. The source data names no market;
+USD-scale CPMs and the Q4 spend skew are consistent with a US advertiser. This is
+a documented assumption, not an inference.
+
+**`brand_interest_index` is a MEDIATOR, not a control.** It is constructed from
+upper-funnel media (Channel3 + Channel1, contemporaneous and adstocked) plus
+seasonality and privacy noise. It correlates +0.64 with Channel3 impressions and
++0.79 with Channel1. Controlling for it would delete part of the media effect
+being measured. It correlates −0.07 with `conversions`, which is expected and
+honest: it cannot have driven an outcome that was generated before it existed.
+
+**Reach and frequency are diagnostics, never model drivers.** Reach is set
+cardinality and is not additive across days, so these are generated directly at
+weekly grain. Resulting frequencies: Channel1 1.62–2.10, Channel4 1.52–2.52 —
+inside the 1.2–4.0 band reported for national buys.
+
 ## Access reproducibility
 
 `src/01_load.py` reads `data/raw/`, exposes `national()` and `geo()`, and asserts

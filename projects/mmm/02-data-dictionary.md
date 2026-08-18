@@ -86,6 +86,32 @@ moderate, and for two channels it is nil.**
 
 Implied revenue over the period: 1,318,718,006.
 
+## Augmentation table — `data/simulated/augmented_weekly.csv`
+
+**156 rows × 15 columns**, keyed on `time`. Built by `src/02_simulate_sources.py`
+(seed 20260818). Provenance is per-column and non-negotiable.
+
+| Field | Type | Provenance | Definition | Notes |
+| --- | --- | --- | --- | --- |
+| `holiday_count` | int | **real** | US federal holidays falling in the week | 0 in 120 weeks, 1 in 31, 2 in 5 |
+| `holiday_newyear` | int | **real** | Week contains New Year's Day | 4 weeks |
+| `holiday_memorial` | int | **real** | Week contains Memorial Day | 3 weeks |
+| `holiday_july4` | int | **real** | Week contains Independence Day | 4 weeks |
+| `holiday_juneteenth` | int | **real** | Week contains Juneteenth | 4 weeks |
+| `holiday_labor` | int | **real** | Week contains Labor Day | 3 weeks |
+| `holiday_thanksgiving` | int | **real** | Week contains Thanksgiving | 3 weeks. Black Friday is always this week, so no separate flag — it would be perfectly collinear |
+| `holiday_christmas` | int | **real** | Week contains Christmas Day | 4 weeks |
+| `weeks_to_christmas` | int | **real** | Whole weeks until the next 25 Dec | 0–52 |
+| `brand_interest_index` | int | **simulated** | Google-Trends-style branded search interest | **Index 0–100, not a count.** Exactly one week equals 100; zeros mean below threshold. **A MEDIATOR** — r +0.64 with Channel3 impressions, +0.79 with Channel1 |
+| `Channel1_reach` | int | **simulated** | Unique users reached, week | ≤ impressions. Generated weekly — reach is not additive across days |
+| `Channel1_frequency` | float | **simulated** | `impressions / reach` | 1.62–2.10, mean 1.80 |
+| `Channel4_reach` | int | **simulated** | Unique users reached, week | ≤ impressions |
+| `Channel4_frequency` | float | **simulated** | `impressions / reach` | 1.52–2.52, mean 1.93 |
+
+Constraints asserted on every run: index integer and bounded with exactly one
+100; `reach ≤ impressions`; `frequency = impressions / reach` to 1e-5;
+`frequency ≥ 1`; no duplicated holiday flags; per-holiday week counts in range.
+
 ## Additional fields in the geo file (Phase 5 only)
 
 `data/raw/meridian_geo_all_channels.csv` — **6,240 rows × 19 columns**, one row per geo-week.

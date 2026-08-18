@@ -391,3 +391,41 @@ R&F diagnostic) is queued behind the EDA, not cancelled. The branded/non-branded
 question stays open and gets decided after the reads, since the Trends index and
 the branded search split only make sense as a pair.
 
+## 2026-08-18 — Phase 2 — D6: augmentation built (items 1, 2, 4). Item 3 NOT built.
+Caio overrode D5 and asked for the data now. Built `src/02_simulate_sources.py`
+-> `data/simulated/augmented_weekly.csv`, 156 x 15, joining 1:1 on `time`.
+`data/raw/` is never written to; every column carries a provenance tag.
+
+**Built:**
+- 9 **real** holiday columns (US federal calendar, `holidays` 0.103).
+- `brand_interest_index` — **simulated, and deliberately a MEDIATOR.** Built from
+  contemporaneous + adstocked upper-funnel media, so r = +0.64 with Channel3 and
+  +0.79 with Channel1. Controlling for it would delete media effect. Documented
+  as such in `01` and `02` so it can never be used as an innocent control.
+- Reach/frequency for Channel1 and Channel4 — **simulated diagnostics only**,
+  generated at weekly grain. Frequencies 1.62-2.10 and 1.52-2.52, inside the
+  1.2-4.0 band for national buys.
+
+**Three defects found and fixed before shipping:**
+1. `holiday_july4` fired 8 times in 3 years — substring matching caught
+   "Juneteenth National **Independence Day**". Now exact-name matching after
+   stripping "(observed)". Juneteenth got its own flag.
+2. `holiday_blackfriday` was an exact duplicate of `holiday_thanksgiving`
+   (Black Friday always falls in that week). Dropped — perfectly collinear.
+3. `brand_interest_index` correlated **negatively** with the media that built it,
+   because pure adstock on an always-on series is dominated by its slow-moving
+   level. Rebuilt as 65% contemporaneous / 35% adstocked; now +0.64 / +0.79.
+
+**ITEM 3 (branded / non-branded paid search) DELIBERATELY NOT BUILT.**
+It is not a preference — it is a defect. Google generated `conversions` without
+any search channel, so a simulated search channel would have **exactly zero true
+effect** on the outcome. The MMM would correctly estimate its ROI as noise, and
+a reallocation recommendation touching it would be meaningless. The only ways
+round it both have costs, and the choice is Caio's:
+  (a) Inject a real search effect into a **new** `conversions_augmented` column,
+      leaving Google's `conversions` untouched. Coherent, but the modelled
+      outcome then becomes partly ours and the deliverable changes meaning.
+  (b) Drop item 3. The `brand_interest_index` still stands on its own as a
+      mediator demonstration, though it loses its intended pair.
+**Not decided. Nothing built either way.**
+
