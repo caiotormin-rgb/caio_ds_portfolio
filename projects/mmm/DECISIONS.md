@@ -223,3 +223,20 @@ story, or any prior decision.** De-risks D1 considerably.
 Note: `_media` files name the control `competitor_activity_score_control`;
 `_all_channels` files use `competitor_sales_control`. Different variables.
 
+## 2026-08-17 — Phase 1/2 — DECIDED (D2): national first, geo as a bounded second step
+**Options:** geo-first (Meridian's intended design) / national-first with geo
+added later / national only.
+**Chose:** national first, then geo as a defined robustness step.
+**Claude recommended this**; Caio agreed. Reasoning on the record:
+- National IS the geo panel aggregated (verified, 1.8e-16), so nothing done now
+  is discarded — EDA, prep, artifacts and story all transfer intact.
+- Completing one full CRISP-DM chain before adding sophistication matters more
+  than a better model that never ships.
+- It produces an evaluation/robustness section, which most portfolios lack.
+**Accepted risk, stated in advance:** 156 weekly observations is thin for ~15+
+media parameters plus controls and seasonality. Meridian is designed geo-first
+because 40 geos x 156 weeks gives far more identifying variation and lets
+partial pooling stabilise estimates. The national model may come out unstable.
+**Scope wall written into `00-brief.md`.** Without it this becomes the tail that
+turns a finished project into an unfinished one.
+

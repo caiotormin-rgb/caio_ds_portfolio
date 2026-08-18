@@ -41,6 +41,23 @@ implied by the channel mix in the candidate dataset.]
 ## Deliverables
 The CRISP-DM chain 00–09 per `~/.claude/data-project-structure.md`.
 
+## Phase 5 addition — geo robustness check (D2)
+After the national chain is complete, re-fit hierarchically on
+`geo_all_channels.csv` (40 geos x 156 weeks — verified to be this same
+simulation, unaggregated) and report whether the channel ranking and the
+direction of the reallocation hold.
+
+**Scope wall — all four bind:**
+1. It starts **only after `00`-`09` are all drafted for the national model.**
+   Not in parallel. Not "while I'm in there."
+2. It answers **one question**: does the ranking and reallocation direction
+   survive? Not a second model of record, not a geo-level recommendation, not
+   new channels, not a restarted artifact chain.
+3. It lives in **`07-evaluation.md` plus at most one chart** in the readout.
+4. **If the national model turns out under-identified** and geo has to become
+   the primary model, that is an explicit re-decision logged in `DECISIONS.md`
+   with the reason — never a silent drift into scope.
+
 ## Explicitly out of scope
 Attribution comparison, experiment calibration, methods stress-testing. All
 parked in `PARKING-LOT.md`.
