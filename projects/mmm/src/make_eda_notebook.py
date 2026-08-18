@@ -44,6 +44,12 @@ OBS = [
   "A holiday calendar is available (`dt_prophet_holidays`, 123 countries). **The market is Germany** - never formally stated, but Robyn's source gives three converging signals: the commented provenance path `data/de_simulated_data.csv`, and `prophet_country = \"DE\"` in both the documented example and the official demo. 37 holiday dates fall inside the window.",
  ],
  [
+  "Seasonality was never controlled anywhere before this point - every correlation in sections 6, 8 and 9 is raw.",
+  "**TV survives every treatment** at 0.29-0.31 and comes out strongest under all four. **Out-of-home lands at or below zero under all four.**",
+  "**Paid search's raw lead was mostly the calendar** - it falls from 0.443 to somewhere between 0.09 and 0.16 depending on method. **Facebook nearly vanishes**, from 0.318 to 0.007-0.113.",
+  "The Fourier row deserves most weight: it costs 7 parameters against 49 for month-by-year, and smooth seasonality is closer to how the calendar actually behaves than a step function.",
+ ],
+ [
   "**Out-of-home is 61.9% of paid spend.** TV 21.3%, search 8.5%, print 5.3%, **Facebook just 3.1%**.",
   "That mix is atypical for a consumer brand, so conclusions about *which* channel wins will not generalise. Say so in the readout rather than leaving a reviewer to notice.",
   "Total paid spend is only **3.8% of revenue** - light, more mature-CPG than DTC.",
@@ -217,6 +223,89 @@ guide([
  "How much of the movement is the annual wave, and how much is week-to-week?",
  "**If you removed all media, what shape would remain?** That residual is the baseline the model must find - and everything it cannot explain gets dumped there.",
  "Four years gives four seasonal cycles. Enough to separate seasonality from a slow-moving media effect?",
+], [FPP3, CHAN])
+
+md("""
+## 2b. How much of this is just seasonality?
+
+Revenue swings **3.31x** across the year. Media spend swings too. So a raw
+correlation between the two is partly measuring *"November is busy"* rather than
+*"this channel works"* — and the two are impossible to tell apart by eye.
+
+**The fix, in plain language.** Instead of asking *"do high-spend weeks beat
+low-spend weeks?"* — which compares November against June — ask *"within a
+typical November, did the weeks with more spend beat the weeks with less?"*
+
+Mechanically: for each variable, subtract the average value for that time of
+year, then correlate what's left over. Do it to **both** revenue and spend — if
+you only adjust one, the other still carries its seasonal swing and the
+contamination just moves.
+
+**Why four methods below.** Each removes seasonality differently and costs a
+different number of parameters. Month dummies are a blunt step function that
+treat the first and last week of November identically. Fourier terms are smooth
+and cost far fewer parameters. If the answer only held under one of them, it
+would be an artefact of that choice — so we check all four.
+
+**The known cost:** this over-corrects. Any media effect that is *genuinely*
+seasonal gets deleted along with the seasonality. A channel that runs in November
+*because* November converts will have its real effect stripped out too. So treat
+these as a floor on each channel's strength, not a point estimate.
+""")
+
+code("""
+def deseason(frame, cols, grouper):
+    out = frame.copy()
+    for c in cols:
+        out[c] = frame[c] - frame.groupby(grouper)[c].transform("mean")
+    return out
+
+def fourier_resid(frame, cols, harmonics=3, period=52.18):
+    t = np.arange(len(frame))
+    X = np.column_stack([np.ones(len(frame))] +
+                        [f(2*np.pi*k*t/period) for k in range(1, harmonics+1)
+                         for f in (np.sin, np.cos)])
+    out = frame.copy()
+    for c in cols:
+        v = frame[c].to_numpy(float)
+        beta, *_ = np.linalg.lstsq(X, v, rcond=None)
+        out[c] = v - X @ beta
+    return out, X.shape[1]
+
+cols = SPEND + [Y]
+rows = {"raw (no adjustment)": ({c: df[c].corr(df[Y]) for c in SPEND}, 0)}
+rows["month means"]        = ({c: v[c].corr(v[Y]) for c in SPEND}, 12) if (v := deseason(df, cols, df.DATE.dt.month)) is not None else None
+rows["week-of-year means"] = ({c: v[c].corr(v[Y]) for c in SPEND}, 53) if (v := deseason(df, cols, df.DATE.dt.isocalendar().week.astype(int))) is not None else None
+rows["month x year means"] = ({c: v[c].corr(v[Y]) for c in SPEND}, 49) if (v := deseason(df, cols, df.DATE.dt.to_period("M"))) is not None else None
+v, k = fourier_resid(df, cols)
+rows["Fourier, 3 harmonics"] = ({c: v[c].corr(v[Y]) for c in SPEND}, k)
+
+tbl = pd.DataFrame({m: {NAME[c]: r[c] for c in SPEND} for m, (r, _) in rows.items()}).T
+tbl["params used"] = [p for _, p in rows.values()]
+print(tbl.round(3).to_string())
+
+fig, ax = plt.subplots(figsize=(10, 3.6))
+methods = list(rows)
+x = np.arange(len(SPEND)); w = 0.16
+for i, meth in enumerate(methods):
+    vals = [rows[meth][0][c] for c in SPEND]
+    ax.bar(x + (i - 2) * w, vals, w, label=meth,
+           color=BLUE if meth == "raw (no adjustment)" else
+                 [ORANGE, AQUA, "#eda100", "#4a3aa7"][i-1])
+ax.axhline(0, color=INK2, linewidth=.8)
+ax.set_xticks(x); ax.set_xticklabels([NAME[c] for c in SPEND])
+ax.legend(frameon=False, fontsize=8, ncol=3, labelcolor=INK2)
+ax.grid(axis="x", visible=False)
+tidy(ax, "Correlation with revenue, before and after removing seasonality",
+     "if a channel only looks strong in the blue bar, its strength was the calendar",
+     "corr with revenue")
+plt.tight_layout(); plt.show()
+""")
+guide([
+ "Which channels keep their strength once seasonality is removed, and which collapse?",
+ "Does any channel's ranking depend on *which* seasonality method you pick? If so, that channel's story is fragile and the readout has to say so.",
+ "Remember this over-corrects. A channel bought deliberately into peak season loses its real effect here too. Which channels does that most likely apply to?",
+ "These are floors, not estimates. What would you need — a model rather than a correlation — to turn them into something you could quote?",
 ], [FPP3, CHAN])
 
 md("## 3. How is the money split across channels?")
@@ -450,16 +539,40 @@ project decision goes into `DECISIONS.md` - not here.
 
 # --- preserve Caio's work -----------------------------------------------------
 OUT = "notebooks/01_eda.ipynb"
+
+
+def reads_by_section(cells):
+    """Map section heading -> 'Your read' text.
+
+    Keyed by HEADING, never by position. Position-based matching silently
+    reassigns every read to the wrong section the moment a section is inserted,
+    which is exactly what happened when 2b was added.
+    """
+    out, current = {}, None
+    for c in cells:
+        if c.cell_type == "markdown" and c.source.lstrip().startswith("## "):
+            current = c.source.lstrip().split("\n")[0].strip()
+        elif c.cell_type == "markdown" and c.source.startswith("**Your read:**"):
+            if current and c.source.strip() != "**Your read:**":
+                out[current] = c.source
+    return out
+
+
 kept = 0
 if os.path.exists(OUT):
-    old = nbf.read(OUT, as_version=4)
-    old_reads = [c.source for c in old.cells
-                 if c.cell_type == "markdown" and c.source.startswith("**Your read:**")]
-    new_reads = [i for i, c in enumerate(C)
-                 if c.cell_type == "markdown" and c.source.startswith("**Your read:**")]
-    for i, text in zip(new_reads, old_reads):
-        if text.strip() != "**Your read:**":
-            C[i] = nbf.v4.new_markdown_cell(text); kept += 1
+    previous = reads_by_section(nbf.read(OUT, as_version=4).cells)
+    current = None
+    for i, c in enumerate(C):
+        if c.cell_type == "markdown" and c.source.lstrip().startswith("## "):
+            current = c.source.lstrip().split("\n")[0].strip()
+        elif (c.cell_type == "markdown" and c.source.startswith("**Your read:**")
+              and current in previous):
+            C[i] = nbf.v4.new_markdown_cell(previous[current]); kept += 1
+    lost = set(previous) - {c.source.lstrip().split("\n")[0].strip()
+                            for c in C if c.cell_type == "markdown"
+                            and c.source.lstrip().startswith("## ")}
+    if lost:
+        print(f"WARNING: {len(lost)} filled read(s) had no matching section and were NOT carried: {sorted(lost)}")
 
 nb["cells"] = C
 nb.metadata.kernelspec = {"display_name": "Python 3", "language": "python", "name": "python3"}

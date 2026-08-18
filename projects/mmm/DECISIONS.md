@@ -688,3 +688,54 @@ one-argument change to `holidays()`.
 ingestion and validation only — the holiday-to-week mapping is a transformation
 and belongs in `04-data-prep.md`, not in the loader.
 
+## 2026-08-18 — Phase 2 — FINDING: seasonality was never controlled, and it reverses the ranking
+Added as notebook subsection **2b** with a plain-language rationale.
+
+**The problem:** revenue swings 3.31x across the year and so does spend, so every
+raw correlation partly measures "November is busy" rather than "this channel
+works". Nothing before 2b controlled for it.
+
+**The fix:** subtract each variable's seasonal average from **both** sides, then
+correlate the remainder — i.e. compare weeks only against other weeks in the same
+part of the year. Equivalent to a regression with time fixed effects (FWL).
+
+**Four treatments checked, because a result that holds under only one is an
+artefact of that choice:**
+
+| method | TV | OOH | Print | Facebook | Search | params |
+|---|---:|---:|---:|---:|---:|---:|
+| raw | 0.420 | 0.095 | 0.230 | 0.318 | **0.443** | 0 |
+| month means | **0.290** | 0.012 | 0.125 | 0.061 | 0.144 | 12 |
+| week-of-year | **0.292** | -0.070 | 0.185 | 0.007 | 0.138 | 53 |
+| month x year | **0.311** | -0.028 | 0.122 | 0.074 | 0.161 | 49 |
+| Fourier, 3 harmonics | **0.311** | -0.013 | 0.139 | 0.113 | 0.090 | 7 |
+
+**TV is strongest under all four. OOH is at or below zero under all four.
+Search's raw lead was the calendar. Facebook nearly vanishes.** The Fourier row
+carries most weight — 7 parameters against 49, and smooth seasonality is closer
+to how a calendar behaves than a step function.
+
+**Stated limitation:** this over-corrects. Media bought deliberately into peak
+season has its real effect stripped out too, so these are **floors, not point
+estimates**.
+
+**Caio's read (interview, captured to notebook 2b):** *"It seemed obvious we
+already had seasonality controls — dummies at least — but we didn't... Facebook
+was indeed distorted by seasonality. Out-of-home is still weak, saving missing
+context or an overlooked KPI."*
+
+**Pre-commitment for `05-analysis-plan.md`:** seasonality is controlled with
+**smooth terms (Fourier / prophet), not month dummies**, on the degrees-of-freedom
+argument above. Recorded before any model is fit.
+
+## 2026-08-18 — Tooling — BUG FOUND AND FIXED: read-cell preservation was position-keyed
+Inserting subsection 2b shifted every "Your read" cell by one, and the generator
+silently reassigned all three of Caio's captured answers to the **wrong sections**
+— the budget-split read landed on 2b, the controls read on 6, the OOH read on 8.
+Caught by inspection, not by any test.
+**Fixed:** preservation is now keyed by **section heading**, never by position,
+and it warns loudly if a filled read has no matching section in the new build.
+Misplaced reads repaired.
+**Lesson worth keeping:** the mechanism protecting his work was itself the thing
+that corrupted it. Any "safe" preservation scheme needs a stable key.
+
