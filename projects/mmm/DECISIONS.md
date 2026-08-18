@@ -530,3 +530,46 @@ choice is a modelling assumption that must be stated in `05-analysis-plan.md`.**
 
 **Unresolved.** Belongs in `03-data-quality.md` (Caio's) and forces a decision in `05`.
 
+## 2026-08-18 — Phase 2 — Caio: the Meridian sample cannot yield productive analysis
+Tested rather than debated. Two findings.
+
+**1. Robyn's dataset is strictly better on every identification-relevant axis.**
+
+| | Meridian national | Robyn dt_simulated_weekly |
+|---|---|---|
+| weeks | 156 | **208** |
+| seasonality peak/trough | 1.07x | **3.31x** |
+| channels >20% dark weeks | **0/5** | **4/5** |
+| CV per channel | 0.31-0.87 | **0.79-1.94** |
+| max abs corr(spend, outcome) | 0.18 | **0.44** |
+| quintile Q5 > Q1 | **2/5** | **5/5** |
+| implied CPM variation | ~1e-8 (constant) | **0.252** |
+
+Robyn's known weakness — `competitor_sales_B` correlating 0.916 with revenue —
+is a *modelling challenge*, and an interesting one. Meridian's problem is an
+*identification failure*, which no modelling choice can fix.
+
+**2. The geo panel does NOT rescue it.** Meridian is designed geo-first, so this
+was worth testing before abandoning the dataset. It fails for a specific reason:
+- within-geo correlations 0.02-0.13, no better than national
+- between-geo 0.02-0.22
+- **spend per capita barely varies across geos (CV 0.04-0.13)**
+- **channel mix is nearly identical in every geo** — Channel3's share ranges only
+  0.380-0.414 across all 40 markets, sd 0.009
+Geo-level MMM works because different markets receive different mixes. Here every
+geo gets the same plan scaled by population, so there is no cross-sectional
+variation to exploit. D2's Phase 5 robustness step is therefore also dead.
+
+**CLAUDE ERROR TO OWN:** dropping Robyn at D1 conflated tooling with data. Caio
+ruled out R; the data is a flat table readable in Python via `pyreadr`, with no
+R anywhere. The distinction was flagged at the time and then not acted on.
+
+**Not wasted:** the diagnostics above are a **data readiness assessment** — a
+real pre-engagement artifact, and per industry practice a good MMM project is
+~60% data readiness. Two candidate datasets audited on identification criteria,
+with a documented go/no-go, is legitimate `01`/`03` content whichever way we go.
+
+**Open — Caio's call.** Options presented: (A) switch to Robyn in Python,
+(B) keep Meridian and reframe the deliverable as a readiness assessment,
+(C) build our own simulator with known ground truth and a longer period.
+
