@@ -630,3 +630,17 @@ most portfolios never show a dataset they rejected, let alone the criteria.
 **Still open:** `05` must decide the holiday market, the treatment of
 `competitor_sales_B`, and whether `newsletter` enters the model.
 
+## 2026-08-18 — EDA notebook — first-pass notes sharpened with post-rebuild facts
+The notes were already Robyn-current (regenerated at D8). Four additions, each a
+fact established while rebuilding `01`/`02` that the notes did not yet carry:
+- **s2:** a holiday calendar exists (123 countries) but the **market is
+  undecided** — DE 37 dates in-window, US 44. Deferred to `05`.
+- **s3:** the project's central tension stated up front — **out-of-home takes
+  61.9% of budget with the weakest outcome correlation (+0.095); paid search
+  takes 8.5% with the strongest (+0.443).**
+- **s6:** full correlation ranking (search +0.443, TV +0.420, Facebook +0.318,
+  print +0.230, OOH +0.095) — **almost exactly inverse to budget share.**
+- **s10:** the constraint, not just the observation — TV, OOH and print have no
+  exposure column, so an exposure-based specification covers at most 2 of 5
+  channels or must be abandoned for consistency. Decide in `05`, not mid-model.
+

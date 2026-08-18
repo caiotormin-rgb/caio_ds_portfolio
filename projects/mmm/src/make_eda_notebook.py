@@ -41,11 +41,13 @@ OBS = [
   "**No trend at all**: -66 per week, p = 0.94. A flat, mature brand over four years.",
   "**Seasonality is strong - 3.31x month peak/trough**, June 0.87m rising to November 2.87m. This is the dominant feature of the outcome.",
   "So the baseline the model must find is almost entirely seasonal. Anything tracking that annual wave will compete with media for credit - hold that until section 7.",
+  "A holiday calendar is available (`dt_prophet_holidays`, 123 countries) but **the market is undecided** - the dataset names none. DE gives 37 holiday dates inside the window, US gives 44. That choice belongs in `05-analysis-plan.md`.",
  ],
  [
   "**Out-of-home is 61.9% of paid spend.** TV 21.3%, search 8.5%, print 5.3%, **Facebook just 3.1%**.",
   "That mix is atypical for a consumer brand, so conclusions about *which* channel wins will not generalise. Say so in the readout rather than leaving a reviewer to notice.",
   "Total paid spend is only **3.8% of revenue** - light, more mature-CPG than DTC.",
+  "**Hold these two numbers together: out-of-home takes 61.9% of the budget and has the weakest outcome correlation of any channel (+0.095). Paid search takes 8.5% and has the strongest (+0.443).** If that survives controlling for seasonality, the reallocation writes itself - and if it doesn't, understanding why is the project.",
  ],
  [
   "**Four of five channels are genuinely flighted**: OOH dark 59% of weeks, print 58%, TV 56%, Facebook 51%.",
@@ -61,6 +63,7 @@ OBS = [
   "**Channels are almost independent of each other** - strongest pair is TV-Facebook at 0.15. Multicollinearity between media is not a problem here.",
   "**But `competitor_sales_B` correlates 0.92 with revenue**, far above any channel (best is search at 0.44). This single variable is the central modelling problem.",
   "Two other links: newsletter-search 0.60, competitor-search 0.48. Search is entangled with both the organic channel and the control.",
+  "Bottom row, ranked: search +0.443, TV +0.420, Facebook +0.318, print +0.230, **out-of-home +0.095**. The ordering is almost exactly inverse to budget share.",
  ],
  [
   "`competitor_sales_B` at **r = 0.92** will absorb nearly all outcome variance if entered as-is. Media would then be estimated off a small residual and come back conservative - possibly uselessly so.",
@@ -85,6 +88,7 @@ OBS = [
   "**Unit cost genuinely varies**: Facebook cost-per-impression CV 0.252, search cost-per-click CV 0.124. Spend and exposure are *not* interchangeable here - a real choice with consequences.",
   "Spend correlates 0.991 with impressions (Facebook) and 0.983 with clicks (search). High, but the residual is where auction pressure and efficiency changes live.",
   "Media effects come from delivery; budget decisions are made in money. You will need the conversion between them either way.",
+  "**The binding constraint:** TV, out-of-home and print have no exposure column at all. So an exposure-based specification can cover at most 2 of 5 channels, or must be abandoned for consistency. That is a property of the data, not a preference - decide it in `05`, not mid-model.",
  ],
 ]
 
