@@ -299,3 +299,41 @@ units decision, not a modelling one.
 **Also noted:** `Promo` is never zero — a continuous always-on intensity, not an
 on/off flag as previously described.
 
+## 2026-08-18 — Phase 2 — Platform spec research (subagent), and what it rules out
+Full condensed spec in `reference/platform-data-specs.md`. Findings that change
+what is worth simulating:
+
+**Reach is not additive.** It is set cardinality, so weekly reach is a union,
+not a sum — naive summation overcounts by 30-70%. Both Google and Meta state
+their reach metrics cannot be aggregated. A real weekly reach series is
+assembled by ~156 separate API calls per platform, not a `groupby`.
+**Consequence for MMM:** impressions/spend stay the additive media driver;
+reach and frequency can only be diagnostics or covariates. Any simulated reach
+series built by summing days would have an impossible reach-to-impression ratio
+and would be caught immediately.
+
+**Three things cannot be simulated as native fields at all:**
+- **Branded vs non-branded** — no API field, no enum, anywhere. Analysts regex
+  the keyword text. Only admissible as an explicitly derived analyst column.
+- **Search volume** — not in performance reporting. Separate service, monthly,
+  bucketed (10/50/100/500/1K/5K/10K), not joinable to weekly performance.
+- **YouTube organic impressions / thumbnail CTR** — do not exist in the YouTube
+  Analytics API, only in the Studio UI. Paid video reach comes from the Google
+  Ads API. Conflating the two APIs is the classic synthetic-data tell.
+
+**Google Search Console is effectively ruled out for this project:** 16-month
+retention means a 156-week series is unobtainable via the standard API.
+Simulating one implies a BigQuery bulk export or three years of monthly manual
+pulls, which is a lot of implied backstory for little modelling gain.
+
+**Realism details worth respecting if we simulate:** impression share is clipped
+to [0.1, 1.0] with anything below reported as exactly 0.0999 (lost-IS clipped at
+0.9001); Google Ads `conversions` is a fractional DOUBLE, so integer conversions
+are a tell; Meta `ctr` is percent 0-100 while Google and GSC are ratios 0-1;
+Meta serialises all numerics as JSON strings; Trends is an integer index 0-100
+in which exactly one period equals 100, and a 3-year window natively returns
+weekly data.
+
+**Still open:** whether to add simulated sources at all, and the channel naming
+proposal. Neither decided.
+
