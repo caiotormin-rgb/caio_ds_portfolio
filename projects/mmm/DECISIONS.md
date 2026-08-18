@@ -662,3 +662,29 @@ documented fact.
 revenue"* while the dataset is weekly. Trust the data over the docs — same
 lesson as the 208-vs-205-weeks discrepancy found earlier.
 
+## 2026-08-18 — Phase 2 — D9: DE holiday calendar adopted
+**Caio:** "lets adopt DE holidays."
+**Chose:** `dt_prophet_holidays` filtered to `country == "DE"`.
+**Why:** three converging signals in Robyn's source (commented provenance path
+`data/de_simulated_data.csv`; `prophet_country = "DE"` in both the documented
+example and the official demo). Never formally stated — **the writeup must say
+inferred, not documented.**
+**Rules out:** US and the other 121 country calendars. If the DE assumption is
+ever challenged, US is the fallback (44 dates in-window vs 37) and the swap is a
+one-argument change to `holidays()`.
+
+**Coverage validated on the weekly grid (Phase 2 work, not Phase 3):**
+- 37 holiday dates in-window, **10 distinct** holidays.
+- 9 of the 10 recur in all four years (Christmas Day, Second Day of Christmas,
+  New Year's Day, Good Friday, Easter Monday, Labor Day, Ascension Day, Whit
+  Monday, German Unity Day). **Reformation Day appears once** — 2017, the
+  Reformation's 500th anniversary, a one-off national holiday in Germany. At
+  n=1 it is unusable as a control, exactly like `events`.
+- **33 of 208 weeks (15.9%) contain at least one holiday**; 4 weeks contain two.
+- Naive mean revenue is 1.92m in holiday weeks vs 1.80m otherwise — a +6.7%
+  gap, but uncontrolled and confounded with December seasonality. Not a finding.
+
+**Deferred to Phase 3:** turning this into weekly features. `01_load.py` stays
+ingestion and validation only — the holiday-to-week mapping is a transformation
+and belongs in `04-data-prep.md`, not in the loader.
+
