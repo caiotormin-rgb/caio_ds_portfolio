@@ -1,128 +1,69 @@
-> # ⚠️ STALE — DESCRIBES THE REJECTED MERIDIAN DATASET
-> D8 switched the project to Robyn `dt_simulated_weekly`. Everything below
-> documents the Meridian sample, which is now **audit evidence** in
-> `data/audit/`, not the modelling input. **Rewrite required.**
-
 # 02 — Data dictionary
 *CRISP-DM Phase 2: Data Understanding. Cap: table only — no prose.*
 
-> **STATUS:** WRITTEN
+> **STATUS:** WRITTEN (rebuilt for Robyn after D8)
 > **Blocked by:** nothing
 > **Done when:** ✅ every column in the modelling table has a definition and a unit
 
-`data/raw/meridian_national_all_channels.csv` — **156 rows × 17 columns**, one row per week.
-Loaded via `src/01_load.py :: national()`. `r_y` = Pearson correlation with `conversions`.
+`data/raw/robyn_simulated_weekly.csv` — **208 rows × 12 columns**, one row per week.
+Loaded via `src/01_load.py :: weekly()`. `r_y` = Pearson correlation with `revenue`.
+
+Robyn's suffix convention: `_S` = spend, `_I` = impressions, `_P` = clicks,
+`_B` = baseline/context variable.
 
 | Field | Type | Required | Definition | Example | Notes |
 | --- | --- | --- | --- | --- | --- |
-| `time` | date | yes | Week start, always a Monday | `2021-01-25` | 156 consecutive weeks to 2024-01-15. No gaps, no duplicates |
-| `conversions` | float | yes | Weekly conversions. **The dependent variable** | `422,632,782` | Range 340.3m–491.3m, mean 422.6m. Never zero |
-| `revenue_per_conversion` | float | yes | Revenue value of one conversion | `0.02000151` | **156 distinct values, not a constant** — but CV is 0.076% and full range spans 0.45% of the mean. `revenue = conversions × this` correlates 0.99994 with `conversions`, so the two are interchangeable as an outcome |
-| `Channel0_spend` | float | yes | Paid media spend, channel 0 | `259,626.37` | 18.5% of paid spend. Never zero. `r_y` +0.051 |
-| `Channel1_spend` | float | yes | Paid media spend, channel 1 | `200,771.14` | 14.3% of paid spend. Never zero. `r_y` +0.012 |
-| `Channel2_spend` | float | yes | Paid media spend, channel 2 | `77,431.73` | 5.5% of paid spend. **Only channel with dark weeks — 2.6%.** `r_y` −0.110 |
-| `Channel3_spend` | float | yes | Paid media spend, channel 3 | `563,207.42` | **Largest at 40.0% of paid spend.** Never zero. `r_y` −0.124 |
-| `Channel4_spend` | float | yes | Paid media spend, channel 4 | `305,965.92` | 21.7% of paid spend. Never zero. `r_y` −0.179 |
-| `Channel0_impression` | int | yes | Impressions delivered, channel 0 | `35,406,541` | **Fixed CPM 7.3327** — exact rescale of spend |
-| `Channel1_impression` | int | yes | Impressions delivered, channel 1 | `20,824,222` | **Fixed CPM 9.6412** — exact rescale of spend |
-| `Channel2_impression` | int | yes | Impressions delivered, channel 2 | `10,420,201` | **Fixed CPM 7.4309** — exact rescale of spend |
-| `Channel3_impression` | int | yes | Impressions delivered, channel 3 | `72,272,418` | **Fixed CPM 7.7928** — exact rescale of spend |
-| `Channel4_impression` | int | yes | Impressions delivered, channel 4 | `39,267,119` | **Fixed CPM 7.7919** — exact rescale of spend |
-| `Organic_channel0_impression` | int | yes | Impressions from an **organic** channel — no media cost | `21,298,667` | Range 0.4m–60.9m. Never zero. Excluded from paid-spend totals and from any reallocation. `r_y` +0.017 |
-| `competitor_sales_control` | float | yes | Competitor sales activity. Context/control, **pre-standardised** | `-0.0448` | Range −1.95 to +2.13, mean ≈ 0. `r_y` **−0.380** — the strongest non-media relationship in the table |
-| `sentiment_score_control` | float | yes | Brand sentiment. Context/control, **pre-standardised** | `-0.0264` | Range −1.86 to +1.96, mean ≈ 0. `r_y` −0.056 |
-| `Promo` | float | yes | Promotional intensity | `0.4957` | Range 0.012–1.473, **never zero — always-on continuous intensity, not an on/off flag.** `r_y` **+0.299** |
+| `DATE` | date | yes | Week start, always a Monday | `2015-11-23` | 208 consecutive weeks to 2019-11-11. No gaps, no duplicates. **2015 contributes only 6 weeks and 2019 only 45** — raw year-over-year comparison is invalid |
+| `revenue` | float | yes | Weekly revenue. **The dependent variable** | `1,822,143` | Range 672,250–3,827,520. Never zero. No trend (−66/wk, p=0.94). **Seasonality 3.31× month peak/trough** — June 0.87m to November 2.87m |
+| `tv_S` | float | yes | TV spend | `14,843.69` | 21.3% of paid spend. **56% of weeks dark.** CV 1.92. `r_y` +0.420 |
+| `ooh_S` | float | yes | Out-of-home spend | `43,217.94` | **Largest at 61.9% of paid spend.** 59% of weeks dark. CV 1.94. `r_y` **+0.095 — the weakest of any channel** |
+| `print_S` | float | yes | Print spend | `3,728.63` | 5.3% of paid spend. 58% of weeks dark. CV 1.74. `r_y` +0.230 |
+| `facebook_S` | float | yes | Facebook spend | `2,145.66` | **Smallest at 3.1% of paid spend.** 51% of weeks dark. CV 1.47. `r_y` +0.318 |
+| `facebook_I` | float | yes | Facebook impressions | `8,153,415` | Exposure twin of `facebook_S`, r = 0.991. **Cost per impression varies, CV 0.252** — so the two are *not* interchangeable. Model one, never both |
+| `search_S` | float | yes | Paid search spend | `5,915.51` | 8.5% of paid spend. **Only 15% of weeks dark — effectively always-on**, unlike every other channel. CV 0.79. `r_y` **+0.443, the strongest channel** |
+| `search_clicks_P` | float | yes | Paid search clicks | `16,945.21` | Exposure twin of `search_S`, r = 0.983. Cost per click varies, CV 0.124. Model one, never both |
+| `newsletter` | float | yes | Newsletter volume. **Organic** — no media cost | `22,386.52` | Range 301–96,236, never zero. `r_y` +0.406. Excluded from paid-spend totals and from any reallocation. Correlates 0.60 with `search_S` |
+| `competitor_sales_B` | int | yes | Competitor sales. Context/control variable | `5,538,025` | **`r_y` +0.916 — far above any media channel.** The central modelling problem; see `03-data-quality.md` |
+| `events` | str | yes | Event flag | `na` | **206 of 208 weeks are `"na"`**; `event1` and `event2` occur once each. **Unusable at n=1 — drop it** |
 
-## Channel naming — a documented convention, NOT a finding
+## Supporting file
 
-The source data ships channels as `Channel0`–`Channel4` with **no media type**.
-The names below are **assigned by us** so the readout can speak in media terms
-instead of indices. They are a labelling convention and must be disclosed as one
-wherever they appear.
+`data/raw/robyn_prophet_holidays.csv` — **87,651 rows × 4 columns**, one row per
+holiday per country per year.
 
-Google's simulation did not encode media-type character: four of the five CPMs
-fall between 7.33 and 7.79, and no channel shows a classic TV flighting pattern
-or search-like smoothness. Evidence for the mapping is therefore **weak to
-moderate, and for two channels it is nil.**
+| Field | Type | Required | Definition | Example | Notes |
+| --- | --- | --- | --- | --- | --- |
+| `ds` | date | yes | Holiday date | `2016-12-25` | Covers 1995–2044 |
+| `holiday` | str | yes | Holiday name | `Christmas Day` | |
+| `country` | str | yes | ISO country code | `DE` | 123 countries |
+| `year` | int | yes | Calendar year | `2016` | |
 
-| Raw | Assigned name | Evidence | Basis |
-|---|---|---|---|
-| `Channel3` | **TV / CTV** | moderate | Largest at 40.0% of spend, steadiest (CV 0.31), most persistent (AC1 0.31), highest impressions (72.3m/wk) |
-| `Channel1` | **YouTube / premium video** | moderate | Only distinctive CPM — 9.64 vs 7.33–7.79 for every other channel, +25% |
-| `Channel2` | **Out-of-home** | moderate | Burstiest (CV 0.87), only channel with dark weeks (2.6%), strong Q4 skew — 17.1% of annual spend in October vs 2.9% in April |
-| `Channel0` | **Programmatic display** | **weak** | Lowest CPM (7.33) at high volume. Consistent with display, but not diagnostic |
-| `Channel4` | **Paid social** | **none** | CPM (7.79) is identical to Channel3's and every other signature is mid-range. **This name is an assignment, not an inference** |
-
-**Rules for using these names**
-1. Anywhere a name appears in a deliverable, the convention is disclosed.
-2. No claim about a named channel may rest on the name. "Out-of-home saturates
-   early" is only ever "Channel2 saturates early, and we labelled Channel2 OOH."
-3. `06-model-card.md` and `08-readout.md` both carry the disclosure.
-4. Modelling code uses the **raw** `Channel0`–`Channel4` identifiers throughout.
-   Names are a presentation layer applied at readout time only.
-
-## Units and conventions
-
-| Convention | Meaning |
-| --- | --- |
-| `_spend` | Currency, unspecified denomination. Simulated |
-| `_impression` | Count of impressions delivered |
-| `_control` | Pre-standardised context variable, mean ≈ 0 |
-| `Channel0`–`Channel4` | **Anonymous.** No media type is given. Any mapping to TV / search / social would be an invention and must be disclosed as one |
+**Market is undecided.** DE gives 37 holiday dates inside the modelling window
+(10 distinct), US gives 44 (13 distinct). The dataset names no market. Deferred
+to `05-analysis-plan.md`.
 
 ## Derived fields (not in the raw file)
 
 | Field | Source | Definition |
 | --- | --- | --- |
-| `revenue` | `conversions × revenue_per_conversion` | Monetary outcome. Built in the EDA notebook |
-| `total_spend` | sum of the five `_spend` columns | Weekly paid media total |
-| implied CPM | `spend / impression × 1000` | Per channel; constant by construction — see notes above |
+| `total_spend` | sum of the five `_S` columns | Weekly paid media total. Excludes `newsletter`, which has no cost |
+| unit cost | `spend / exposure` | Facebook cost-per-impression, search cost-per-click. Only these two channels have exposure columns |
 
-## Paid spend by channel, full 156 weeks
+## Paid spend by channel, full 208 weeks
 
-| Channel | Total | Share |
-| --- | ---: | ---: |
-| `Channel3` | 87,860,358 | 40.0% |
-| `Channel4` | 47,730,683 | 21.7% |
-| `Channel0` | 40,501,713 | 18.5% |
-| `Channel1` | 31,320,298 | 14.3% |
-| `Channel2` | 12,079,349 | 5.5% |
-| **Total paid** | **219,492,402** | **16.6% of revenue** |
+| Channel | Field | Total | Share |
+| --- | --- | ---: | ---: |
+| Out-of-home | `ooh_S` | 8,989,332 | 61.9% |
+| TV | `tv_S` | 3,087,488 | 21.3% |
+| Paid search | `search_S` | 1,230,427 | 8.5% |
+| Print | `print_S` | 775,556 | 5.3% |
+| Facebook | `facebook_S` | 446,297 | 3.1% |
+| **Total paid** | | **14,529,099** | **3.8% of revenue** |
 
-Implied revenue over the period: 1,318,718,006.
+Total revenue over the period: 379,005,697.
 
-## Augmentation table — `data/simulated/augmented_weekly.csv`
+## Channels with no exposure data
 
-**156 rows × 15 columns**, keyed on `time`. Built by `src/02_simulate_sources.py`
-(seed 20260818). Provenance is per-column and non-negotiable.
-
-| Field | Type | Provenance | Definition | Notes |
-| --- | --- | --- | --- | --- |
-| `holiday_count` | int | **real** | US federal holidays falling in the week | 0 in 120 weeks, 1 in 31, 2 in 5 |
-| `holiday_newyear` | int | **real** | Week contains New Year's Day | 4 weeks |
-| `holiday_memorial` | int | **real** | Week contains Memorial Day | 3 weeks |
-| `holiday_july4` | int | **real** | Week contains Independence Day | 4 weeks |
-| `holiday_juneteenth` | int | **real** | Week contains Juneteenth | 4 weeks |
-| `holiday_labor` | int | **real** | Week contains Labor Day | 3 weeks |
-| `holiday_thanksgiving` | int | **real** | Week contains Thanksgiving | 3 weeks. Black Friday is always this week, so no separate flag — it would be perfectly collinear |
-| `holiday_christmas` | int | **real** | Week contains Christmas Day | 4 weeks |
-| `weeks_to_christmas` | int | **real** | Whole weeks until the next 25 Dec | 0–52 |
-| `brand_interest_index` | int | **simulated** | Google-Trends-style branded search interest | **Index 0–100, not a count.** Exactly one week equals 100; zeros mean below threshold. **A MEDIATOR** — r +0.64 with Channel3 impressions, +0.79 with Channel1 |
-| `Channel1_reach` | int | **simulated** | Unique users reached, week | ≤ impressions. Generated weekly — reach is not additive across days |
-| `Channel1_frequency` | float | **simulated** | `impressions / reach` | 1.62–2.10, mean 1.80 |
-| `Channel4_reach` | int | **simulated** | Unique users reached, week | ≤ impressions |
-| `Channel4_frequency` | float | **simulated** | `impressions / reach` | 1.52–2.52, mean 1.93 |
-
-Constraints asserted on every run: index integer and bounded with exactly one
-100; `reach ≤ impressions`; `frequency = impressions / reach` to 1e-5;
-`frequency ≥ 1`; no duplicated holiday flags; per-holiday week counts in range.
-
-## Additional fields in the geo file (Phase 5 only)
-
-`data/raw/meridian_geo_all_channels.csv` — **6,240 rows × 19 columns**, one row per geo-week.
-Same 17 fields plus:
-
-| Field | Type | Required | Definition | Example | Notes |
-| --- | --- | --- | --- | --- | --- |
-| `geo` | str | yes | Market identifier | `Geo0` | 40 distinct, `Geo0`–`Geo39` |
-| `population` | float | yes | Market population | `229,277.33` | 136,671–994,049. **Constant within each geo** — a static weight, not a time series |
+TV, out-of-home and print are **spend-only** — no impression or reach column
+exists. Any modelling decision to use exposure rather than spend can therefore
+apply to at most two of the five channels, or must be abandoned for consistency.

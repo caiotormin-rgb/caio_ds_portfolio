@@ -607,3 +607,26 @@ sloping upward across spend quintiles, and unit cost genuinely varying
 (Facebook CV 0.252, search CV 0.124). Its problem is `competitor_sales_B` at
 r=0.92 with revenue — a modelling problem, which is the kind worth having.
 
+## 2026-08-18 — Phase 2 — 01 and 02 rebuilt for Robyn
+Both rewritten from computed field statistics, not carried over. Stale markers
+removed. `01` is 327 prose words, `02` is 127 — both inside cap.
+
+**`01` now carries the data readiness assessment as a first-class section**, with
+the Meridian rejection documented as a comparison table plus the geo test that
+also failed. That turns a dead end into the most defensible part of Phase 2:
+most portfolios never show a dataset they rejected, let alone the criteria.
+
+**Facts recorded that shape later phases:**
+- Robyn licence confirmed **MIT** (repo last pushed 2026-01-26).
+- `dt_prophet_holidays` covers **1995-2044, 123 countries**. Market is undecided:
+  DE gives 37 holiday dates in-window, US gives 44. Deferred to `05`.
+- **TV, out-of-home and print are spend-only** — no exposure column exists. So a
+  spend-vs-exposure modelling choice can apply to at most 2 of 5 channels, or
+  must be dropped for consistency. This is a constraint, not a preference.
+- **`ooh_S` is 61.9% of spend but has the weakest outcome correlation of any
+  channel (+0.095).** `search_S` is 8.5% of spend and the strongest (+0.443).
+- Partial years at both ends (2015: 6 weeks, 2019: 45) make raw YoY invalid.
+
+**Still open:** `05` must decide the holiday market, the treatment of
+`competitor_sales_B`, and whether `newsletter` enters the model.
+
