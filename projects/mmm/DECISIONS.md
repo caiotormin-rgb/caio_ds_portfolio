@@ -765,3 +765,24 @@ estimate. (Threshold of 0.9 is a Claude rule of thumb, not a standard.)
 contaminated, the deseasonalised version is noise, and *"the data does not decide
 this — the specification will"*. That must be stated explicitly in `05`.
 
+## 2026-08-18 — Phase 2 — D10: every headline number ships as a RANGE, not a point
+**Caio:** "bounds."
+**Context:** the demand-proxy question (`newsletter`, `competitor_sales_B` —
+control or mediator?) cannot be settled by this data. Caio's instinct was to keep
+the signals and caveat later; the problem is that including demand proxies does
+not add uncertainty, it **systematically deflates** media effects in a known
+direction, and a footnote does not tell a decision-maker by how much.
+**Chosen instead:** fit both ways and report the span.
+**Rules out:** any single point estimate as a headline number.
+
+**This is the third place the same answer has surfaced** — raw vs deseasonalised,
+four seasonality treatments, and now controls in vs out. That is not coincidence:
+this dataset cannot identify things sharply. So it becomes a structural
+commitment rather than three separate patches.
+
+**Pre-commitment for `05-analysis-plan.md`:** every headline number is reported
+as a range across the specification choices we could not resolve — seasonality
+treatment, demand proxies in/out, and carryover length. Coincidentally this is
+also what industry practice demands of MMM deliverables: ROI as ranges, never
+point estimates.
+
