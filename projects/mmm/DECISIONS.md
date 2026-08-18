@@ -240,3 +240,23 @@ partial pooling stabilise estimates. The national model may come out unstable.
 **Scope wall written into `00-brief.md`.** Without it this becomes the tail that
 turns a finished project into an unfinished one.
 
+## 2026-08-17 — Prior art survey: who else has built on this dataset
+**Third-party work is essentially nonexistent.** GitHub search for Meridian MMM
+returns 353 repos but nearly all are keyword noise. The only dedicated
+third-party demos are `daeexe/Meridian` (1 star) and
+`bhauryal-eliya/Meridian-Demo` (0 stars). No one has published a serious
+end-to-end Meridian project with a full artifact chain.
+**Implication:** differentiation is available — but NOT in the modeling.
+
+**Google's own 7 demo notebooks are the real prior art**, and two of them cover
+this exact deliverable:
+- `ROI_mROI_Response_Curves.ipynb` — ROI, marginal ROI, saturation curves
+- `Meridian_Scenario_Planner_Beta.ipynb` — budget scenario planning
+Plus `Meridian_Getting_Started`, `_Jax`, `_RF_Demo`, `RF_Data_Simulation`, `_MLflow`.
+
+**Consequence for this project:** the model-and-optimise path is well paved by
+Google. The portfolio value therefore sits almost entirely in what surrounds it —
+the data artifacts, the pre-registered analysis plan, the evaluation memo, the
+activation one-pager, and this decision log. Running the demo notebook is not
+the project. Reconfirms the trade-off accepted when the use case was chosen.
+
