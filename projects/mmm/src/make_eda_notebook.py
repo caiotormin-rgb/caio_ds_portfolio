@@ -228,29 +228,25 @@ guide([
 md("""
 ## 2b. How much of this is just seasonality?
 
-Revenue swings **3.31x** across the year. Media spend swings too. So a raw
-correlation between the two is partly measuring *"November is busy"* rather than
-*"this channel works"* — and the two are impossible to tell apart by eye.
+**The problem**
+- Revenue swings **3.31x** across the year. Spend swings too.
+- So a raw correlation partly measures *"November is busy"*, not *"this channel works"*.
+- Nothing before this section controlled for it.
 
-**The fix, in plain language.** Instead of asking *"do high-spend weeks beat
-low-spend weeks?"* — which compares November against June — ask *"within a
-typical November, did the weeks with more spend beat the weeks with less?"*
+**The fix**
+- Wrong question: *do high-spend weeks beat low-spend weeks?* — that compares November against June.
+- Right question: *within a typical November, did the higher-spend weeks do better?*
+- Subtract each variable's seasonal average from **both** revenue and spend. Adjust one side only and the contamination just moves.
+- Equivalent to a regression with time fixed effects.
 
-Mechanically: for each variable, subtract the average value for that time of
-year, then correlate what's left over. Do it to **both** revenue and spend — if
-you only adjust one, the other still carries its seasonal swing and the
-contamination just moves.
+**Why four methods below**
+- Month dummies are a blunt step function — first and last week of November treated alike.
+- Fourier terms are smooth and cost ~7 parameters against 49.
+- A result that holds under only one method is an artefact of that method.
 
-**Why four methods below.** Each removes seasonality differently and costs a
-different number of parameters. Month dummies are a blunt step function that
-treat the first and last week of November identically. Fourier terms are smooth
-and cost far fewer parameters. If the answer only held under one of them, it
-would be an artefact of that choice — so we check all four.
-
-**The known cost:** this over-corrects. Any media effect that is *genuinely*
-seasonal gets deleted along with the seasonality. A channel that runs in November
-*because* November converts will have its real effect stripped out too. So treat
-these as a floor on each channel's strength, not a point estimate.
+**The cost**
+- It **over-corrects**: media bought *because* a season converts loses its real effect too.
+- Read the numbers as **floors, not estimates**.
 """)
 
 code("""
