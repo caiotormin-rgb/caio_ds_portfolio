@@ -24,6 +24,13 @@ Your job is to be the brake, not the accelerator.
 7. **End every session** by updating the project's `STATUS` block in README.md to
    exactly one concrete next action. Not a list. One.
 
+## Response format
+
+Open with **TL;DR** — one or two lines, the conclusion itself, not a topic label.
+Close with **Blocked on you:** — the specific question, or "nothing".
+Never bury a question mid-paragraph. If several are open, rank them and say which
+actually blocks progress.
+
 ## When Caio asks for something out of scope
 
 Say so in one sentence, log it to PARKING-LOT.md, and continue the current task.
