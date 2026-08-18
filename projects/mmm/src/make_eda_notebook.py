@@ -8,6 +8,7 @@ ever starts to state a finding, it has drifted and should be cut.
 
 All reference URLs were HTTP-checked before being written in.
 """
+import os
 import nbformat as nbf
 
 nb = nbf.v4.new_notebook()
@@ -378,7 +379,29 @@ project decision goes into `DECISIONS.md` — not here.
 - [PyMC-Marketing MMM example](https://www.pymc-marketing.io/en/stable/notebooks/mmm/mmm_example.html)
 """)
 
+# --- preserve Caio's work -----------------------------------------------------
+# The notebook is generated, but the "Your read" cells are HIS. Regenerating must
+# never destroy them. Pull the existing text forward, in order, before writing.
+OUT = "notebooks/01_eda.ipynb"
+kept = 0
+if os.path.exists(OUT):
+    old = nbf.read(OUT, as_version=4)
+    old_reads = [c.source for c in old.cells
+                 if c.cell_type == "markdown" and c.source.startswith("**Your read:**")]
+    new_reads = [i for i, c in enumerate(C)
+                 if c.cell_type == "markdown" and c.source.startswith("**Your read:**")]
+    for i, text in zip(new_reads, old_reads):
+        if text.strip() != "**Your read:**":
+            C[i] = nbf.v4.new_markdown_cell(text)
+            kept += 1
+    # Warn about anything else he added that generation will drop.
+    extra = [c for c in old.cells
+             if c.cell_type == "code" and not c.source.strip()
+             and c.source not in {x.source for x in C}]
+    if extra:
+        print(f"note: dropping {len(extra)} empty cell(s) added outside the generator")
+
 nb["cells"] = C
 nb.metadata.kernelspec = {"display_name": "Python 3", "language": "python", "name": "python3"}
-nbf.write(nb, "notebooks/01_eda.ipynb")
-print(f"wrote notebooks/01_eda.ipynb — {len(C)} cells")
+nbf.write(nb, OUT)
+print(f"wrote {OUT} — {len(C)} cells" + (f", preserved {kept} filled 'Your read' cell(s)" if kept else ""))

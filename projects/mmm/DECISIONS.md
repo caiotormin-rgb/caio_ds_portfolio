@@ -453,3 +453,15 @@ one file rather than a rewrite. When real data arrives, the simulated
 augmentation columns should be re-examined for whether they are still needed at
 all.
 
+## 2026-08-18 — Tooling — generator made non-destructive
+`src/make_eda_notebook.py` previously overwrote the notebook wholesale. Once
+Caio starts filling "Your read" cells, that would silently destroy his work —
+the single most valuable content in the file.
+**Fixed:** the generator now reads the existing notebook first and carries any
+filled "Your read" text forward, in order, before writing. Verified with a
+sentinel: written, regenerated, survived. It also warns when dropping cells
+added outside the generator.
+**Also noted:** an empty code cell added from the IDE was swept into commit
+6a6370f by a blanket `git add -A`. Harmless, but the commit message did not
+mention it. Prefer scoped `git add` when the working tree has Caio's edits in it.
+
