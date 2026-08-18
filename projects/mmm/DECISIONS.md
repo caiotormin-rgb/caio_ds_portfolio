@@ -380,3 +380,14 @@ invented data to an already-simulated dataset costs credibility; the mitigation
 is that the boundary is never blurred.
 **Nothing generated yet.** Build order above is proposed, not executed.
 
+## 2026-08-18 — Phase 2 — D5: EDA on Google's data BEFORE any augmentation
+**Agreed:** do not generate simulated columns yet. Caio works through
+`notebooks/01_eda.ipynb` on the unmodified Meridian data first, so
+`03-data-quality.md` documents the real dataset rather than one we partly built.
+**Rules out:** describing, in a data-quality memo, a dataset that was never
+looked at in its original form.
+**Consequence:** D4's build order (holidays -> Trends index -> branded search ->
+R&F diagnostic) is queued behind the EDA, not cancelled. The branded/non-branded
+question stays open and gets decided after the reads, since the Trends index and
+the branded search split only make sense as a pair.
+

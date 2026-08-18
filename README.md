@@ -40,9 +40,14 @@ chart fastest. Momentum matters more than starting with the flagship.
 **Phase 2 (Data Understanding): IN PROGRESS.** Blocked on choosing the dataset.
 
 **Next action:** Caio works through `projects/mmm/notebooks/01_eda.ipynb` and
-fills in the "Your read" cells. Then we discuss. No modeling.
+fills the ten "Your read" cells. Nothing else moves.
 
-**D1 status:** leaning Meridian national — provisional, not locked.
+**Phase 2 artifacts:** `00` closed · `01` written · `02` written (incl. channel
+naming convention) · `03` **waiting on Caio's reads — Claude must not write it**.
+
+**Queued behind the EDA (D4):** simulated sources — holidays, Trends-style brand
+index, branded/non-branded search, R&F diagnostic. Search Console ruled out.
+Nothing generated yet.
 
 **Agreed sequence — do not skip, do not skip the decisions inside it:**
 find the right data → ingest → prepare → **Caio analyzes it himself, with help**
