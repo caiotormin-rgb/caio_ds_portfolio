@@ -31,9 +31,23 @@ dataset. That is a constraint of the domain, stated here rather than glossed ove
 ## Supporting source
 
 `dt_prophet_holidays`, same repository and licence. **87,651 rows, 123 countries,
-1995–2044.** Requires choosing a market: DE yields 37 holiday dates inside the
-window (Robyn's demo convention), US yields 44. **Market is undecided** — the
-dataset names none. Carried to `05-analysis-plan.md`.
+1995–2044.** Requires choosing a market.
+
+**Market: Germany (DE) — inferred, never formally stated.** The dataset's own
+roxygen documentation says only "Simulated MMM data" and names no region. Three
+converging signals in Robyn's source point to DE:
+1. `R/R/data.R:29` — the commented provenance line reads
+   `dt_input <- read.csv('data/de_simulated_data.csv')`
+2. `R/R/inputs.R:136` — the documented example for the main input function uses
+   `prophet_country = "DE"`
+3. `demo/demo.R:67` — the official demo sets `prophet_country = "DE"`
+
+DE yields **37 holiday dates** inside the modelling window (10 distinct); US
+would yield 44 (13 distinct). Recorded here as evidence; the choice is confirmed
+in `05-analysis-plan.md`.
+
+**Documentation defect noted:** `data.R` describes `revenue` as *"Daily total
+revenue"* although the dataset is weekly. The field is weekly.
 
 ## Data readiness assessment — why this dataset and not the alternatives
 

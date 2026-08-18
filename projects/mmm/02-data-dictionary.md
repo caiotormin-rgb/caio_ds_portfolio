@@ -38,9 +38,11 @@ holiday per country per year.
 | `country` | str | yes | ISO country code | `DE` | 123 countries |
 | `year` | int | yes | Calendar year | `2016` | |
 
-**Market is undecided.** DE gives 37 holiday dates inside the modelling window
-(10 distinct), US gives 44 (13 distinct). The dataset names no market. Deferred
-to `05-analysis-plan.md`.
+**Market: DE.** Never formally stated, but inferred from three converging signals
+in Robyn's source — the commented provenance path `data/de_simulated_data.csv`,
+and `prophet_country = "DE"` in both the documented example and the official
+demo. DE gives 37 holiday dates inside the window (10 distinct); US would give 44.
+Evidence in `01-data-sources.md`; confirmed in `05-analysis-plan.md`.
 
 ## Derived fields (not in the raw file)
 

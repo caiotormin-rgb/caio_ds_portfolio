@@ -644,3 +644,21 @@ fact established while rebuilding `01`/`02` that the notes did not yet carry:
   exposure column, so an exposure-based specification covers at most 2 of 5
   channels or must be abandoned for consistency. Decide in `05`, not mid-model.
 
+## 2026-08-18 — Phase 2 — Market resolved: Germany (inferred, not stated)
+Caio asked whether Robyn's docs name a region. **They do not.** The dataset's
+roxygen block says only "Simulated MMM data".
+
+**But three converging signals in Robyn's source point to DE:**
+1. `R/R/data.R:29` — commented provenance: `read.csv('data/de_simulated_data.csv')`
+2. `R/R/inputs.R:136` — documented example uses `prophet_country = "DE"`
+3. `demo/demo.R:67` and `:298` — the official demo sets `prophet_country = "DE"`
+
+Strong enough to adopt DE as the working assumption (37 holiday dates in-window,
+10 distinct; US would give 44/13). **Recorded as inferred, never as stated** —
+`05-analysis-plan.md` confirms it, and the writeup must not present it as a
+documented fact.
+
+**Documentation defect found:** `data.R` describes `revenue` as *"Daily total
+revenue"* while the dataset is weekly. Trust the data over the docs — same
+lesson as the 208-vs-205-weeks discrepancy found earlier.
+

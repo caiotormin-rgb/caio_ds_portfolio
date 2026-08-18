@@ -41,7 +41,7 @@ OBS = [
   "**No trend at all**: -66 per week, p = 0.94. A flat, mature brand over four years.",
   "**Seasonality is strong - 3.31x month peak/trough**, June 0.87m rising to November 2.87m. This is the dominant feature of the outcome.",
   "So the baseline the model must find is almost entirely seasonal. Anything tracking that annual wave will compete with media for credit - hold that until section 7.",
-  "A holiday calendar is available (`dt_prophet_holidays`, 123 countries) but **the market is undecided** - the dataset names none. DE gives 37 holiday dates inside the window, US gives 44. That choice belongs in `05-analysis-plan.md`.",
+  "A holiday calendar is available (`dt_prophet_holidays`, 123 countries). **The market is Germany** - never formally stated, but Robyn's source gives three converging signals: the commented provenance path `data/de_simulated_data.csv`, and `prophet_country = \"DE\"` in both the documented example and the official demo. 37 holiday dates fall inside the window.",
  ],
  [
   "**Out-of-home is 61.9% of paid spend.** TV 21.3%, search 8.5%, print 5.3%, **Facebook just 3.1%**.",
