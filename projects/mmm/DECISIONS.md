@@ -429,3 +429,27 @@ round it both have costs, and the choice is Caio's:
       mediator demonstration, though it loses its intended pair.
 **Not decided. Nothing built either way.**
 
+## 2026-08-18 — Phase 2 — D7: option (b). Simulated search channel dropped.
+**Caio:** "it has to be b. i intend to bring better data later on but gotta start
+with this."
+**Chose:** (b) — do not build a branded/non-branded paid search channel, and do
+not create a `conversions_augmented` column.
+**Why:** the project's credibility rests on Google owning the outcome. Option (a)
+would have spent exactly that.
+**Rules out:** any simulated media channel with its own spend, for as long as
+`conversions` comes from Google's simulation. The constraint is structural, not
+stylistic — a channel that did not exist when the outcome was generated cannot
+have a recoverable effect.
+**Consequence:** `brand_interest_index` stands alone as a mediator demonstration
+rather than as half of a brand/search pair. That is still a genuine and
+uncommon thing to show.
+
+**Standing context — this dataset is a starting point, not the destination.**
+Caio intends to bring better data later. Architectural implication, worth
+protecting: `src/01_load.py` is the single swap point. Everything downstream —
+the EDA notebook, and every artifact from `04` on — reads through it rather than
+touching CSVs directly. Keep it that way, so replacing the source is a change to
+one file rather than a rewrite. When real data arrives, the simulated
+augmentation columns should be re-examined for whether they are still needed at
+all.
+

@@ -45,9 +45,14 @@ fills the ten "Your read" cells. Nothing else moves.
 **Phase 2 artifacts:** `00` closed · `01` written · `02` written (incl. channel
 naming convention) · `03` **waiting on Caio's reads — Claude must not write it**.
 
-**Queued behind the EDA (D4):** simulated sources — holidays, Trends-style brand
-index, branded/non-branded search, R&F diagnostic. Search Console ruled out.
-Nothing generated yet.
+**Augmentation: DONE (D6/D7).** `data/simulated/augmented_weekly.csv` — 9 real
+holiday columns, a Trends-style `brand_interest_index` (a deliberate mediator),
+and reach/frequency diagnostics for Channel1 and Channel4. Simulated paid-search
+channel **dropped** (D7): with Google owning `conversions`, an invented channel
+has no recoverable effect.
+
+**Standing:** this dataset is a starting point. Caio intends to bring better data
+later — keep `src/01_load.py` as the single swap point.
 
 **Agreed sequence — do not skip, do not skip the decisions inside it:**
 find the right data → ingest → prepare → **Caio analyzes it himself, with help**
