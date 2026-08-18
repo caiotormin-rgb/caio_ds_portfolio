@@ -1,8 +1,8 @@
 # Track A — Industry projects
 
-> **Canonical copy:** `~/.claude/data-project-structure.md` — this structure is
-> Caio's default for all data projects, not just this portfolio.
-> If you change it here, change it there too.
+> **Canonical home: the `data-project` skill** (`~/.claude/skills/data-project/`).
+> Invoke it to scaffold any business data project; `scripts/scaffold.py` generates
+> the whole chain. This file is a project-local mirror — change the skill first.
 
 These must read like real work artifacts, not a notebook someone tidied up.
 The spine is **CRISP-DM's six phases**, and the document names below are the
