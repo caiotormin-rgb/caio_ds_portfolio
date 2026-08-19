@@ -1069,3 +1069,40 @@ before seeing output.
 *and* the least movable. "The model says cut TV 40%, your upfronts allow 20% this
 year, here is what that costs" is a real finding rather than a textbook optimum.
 
+## 2026-08-18 — Phase 4 — BUG: wrong bootstrap scheme for a time-series response model
+First full run produced **point estimates outside their own intervals** — Meta at
+5.34 with a 90% interval of [0.19, 3.93]. Impossible unless the replicates are
+fitting a different process, which they were.
+
+**Cause:** a moving-block bootstrap that resamples and **reorders rows**. That is
+standard for many time series and wrong here, because **adstock is defined on the
+sequence**. Reordering blocks fabricates discontinuities in the spend history, so
+every replicate estimated carryover on a series that never existed.
+
+**Fix:** residual bootstrap. Hold the media design fixed, block-resample the
+**residuals**, rebuild the outcome, refit. The spend sequence stays intact and
+only the noise is perturbed — the correct scheme for a response model on a fixed
+design.
+
+**Caught by** the interval containing an impossible value, not by any test.
+Worth carrying into the writeup: an interval that excludes its own point estimate
+is a signal the resampling scheme is wrong, and it is easy to miss if you only
+read the point estimates.
+
+**Also found: the pre-registered rule needs data I was not saving.** D18 requires
+the interval on the **difference** between two channels' marginal ROI. That
+cannot be reconstructed from separate per-channel intervals — it needs the paired
+draws. Now stored.
+
+**First-run observations, pending the corrected intervals:**
+- CTV correctly estimated highest (7.54 vs true 3.63) and linear TV near the
+  bottom (1.51 vs true 1.20). **The core recommendation — cut TV, fund CTV —
+  survives.** Levels are inflated; the ranking is what the decision needs.
+- Branded search: 5.14 against a true 0.00, but its interval **included zero**,
+  so the model was not confident. That is the correct behaviour for a null it
+  cannot resolve.
+- **Carryover recovery is poor**, exactly as `03-data-quality.md` predicted:
+  true θ 0.70/0.40/0.45/0.55/0.10/0.25 against estimated 0.63/0.69/0.00/0.59/
+  0.72/0.63. Only TV and CTV land close. The ranking is recovered far better than
+  the carryover parameters — and the decision only needs the ranking.
+
