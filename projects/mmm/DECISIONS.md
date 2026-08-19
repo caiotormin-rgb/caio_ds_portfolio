@@ -987,3 +987,33 @@ checking, not by inspecting a source.
 The beta(7,3) draw never dipped below the 0.1 floor, so no `0.0999` values
 existed. Caught by asserting the count rather than assuming. Fixed.
 
+## 2026-08-18 — Phase 3 — ingest complete, all six sources reconciled
+`src/12_ingest.py` → `modelling_table.csv` (208 x 19) and `ingest_report.json`.
+**18 detections logged. All six channels reconcile to the generating truth at
+-0.000%.**
+
+**The detection worth reporting:** the Meta string-serialisation defect was
+initially **missed**. Checking `DataFrame.dtype` returned zero string fields —
+because `pandas.read_json` silently coerces quoted numerics on read. The defect
+was in the file the whole time; the detector was looking in the wrong place.
+Fixed by inspecting the **raw JSON text** rather than the parsed frame.
+
+That failure is worth keeping in the writeup: a defect that a library quietly
+repairs is invisible to any check performed after the read. It is the class of
+problem that survives a careful analyst.
+
+**Judgment calls made and recorded, not silently applied:**
+- Impression-share `0.0999` treated as **left-censored**, not as a value. A
+  regression on 0.0999 would model a number the platform never measured.
+- Meta's daily reach summed only as a **diagnostic column**, never a model input.
+- Unsettled tails **flagged, not truncated** — a `settled` column carries the
+  decision forward to modelling rather than discarding rows here.
+- TV **airings** used as the spend series, not the invoice. The +2.5% invoice
+  residual is reported, not absorbed.
+- Missing spend cells filled with **explicit 0** — a dark week is zero spend, not
+  missing data, and the 275 filled cells are logged.
+
+**Defect 14 handled by construction:** week derivation lives in one function and
+`pandas.resample("W")` is never called, so no source drifts a day against Google
+Ads' Monday grid. Asserted, not assumed.
+

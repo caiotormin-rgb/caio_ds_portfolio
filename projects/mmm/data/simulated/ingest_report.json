@@ -1,0 +1,172 @@
+{
+  "detections": [
+    {
+      "defect": 2,
+      "source": "google/search",
+      "detected": "cost in micros (max 64,384,511,594)",
+      "action": "divided by 1e6"
+    },
+    {
+      "defect": 1,
+      "source": "google/search",
+      "detected": "ctr is a ratio (max 0.0420)",
+      "action": "kept as ratio; this is the reference scale"
+    },
+    {
+      "defect": 6,
+      "source": "google/search",
+      "detected": "13 weeks at the 0.0999 impression-share sentinel",
+      "action": "treated as left-censored (<0.1), not as a value"
+    },
+    {
+      "defect": 7,
+      "source": "google/search",
+      "detected": "203/208 conversions are fractional",
+      "action": "kept as float \u2014 integer casting would be the bug"
+    },
+    {
+      "defect": 3,
+      "source": "meta",
+      "detected": "7 numeric fields quoted as strings in the file (spend, impressions, reach, frequency...) \u2014 pandas coerces these silently on read",
+      "action": "detected at the file, then cast explicitly"
+    },
+    {
+      "defect": 4,
+      "source": "meta",
+      "detected": "938 DAILY rows, no weekly increment exists",
+      "action": "rolled up to Monday weeks"
+    },
+    {
+      "defect": 1,
+      "source": "meta",
+      "detected": "ctr on a 0-100 percent scale (max 2.00) vs Google's ratio",
+      "action": "divided by 100 to match"
+    },
+    {
+      "defect": 5,
+      "source": "meta",
+      "detected": "reach is set cardinality \u2014 summing daily overstates weekly",
+      "action": "daily sum retained ONLY as a diagnostic, never used as a model input"
+    },
+    {
+      "defect": 11,
+      "source": "meta",
+      "detected": "last 2 weeks understated (28-day settling)",
+      "action": "flagged via `settled` column; rows kept, decision deferred to modelling"
+    },
+    {
+      "defect": 12,
+      "source": "dv360",
+      "detected": "data ends at line 147; a misaligned 'Grand Total' row and metadata footer follow",
+      "action": "truncated at the first blank line"
+    },
+    {
+      "defect": 10,
+      "source": "dv360",
+      "detected": "1 duplicated week row(s)",
+      "action": "dropped, keeping first"
+    },
+    {
+      "defect": 13,
+      "source": "dv360",
+      "detected": "reach absent \u2014 STANDARD reports cannot carry it",
+      "action": "read from the separate REACH export and joined"
+    },
+    {
+      "defect": 10,
+      "source": "amazon",
+      "detected": "1155 daily rows against 1456 possible \u2014 zero-activity rows omitted entirely",
+      "action": "reindexed to the full week grid and filled with 0; absence != missing"
+    },
+    {
+      "defect": 11,
+      "source": "amazon",
+      "detected": "conversions restate for 42 days after the interaction",
+      "action": "final 6 weeks flagged unsettled via `settled` column"
+    },
+    {
+      "defect": 9,
+      "source": "tv/sheet",
+      "detected": "15 rows with cost ~1000x below the median (278.2 vs median 82,634)",
+      "action": "rescaled by 1000; detected by magnitude break, not by trust"
+    },
+    {
+      "defect": 8,
+      "source": "tv/sheet",
+      "detected": "invoice total 12,917,256 vs airings 12,600,000 (+2.5%)",
+      "action": "airings used as the spend series; residual reported, not absorbed"
+    },
+    {
+      "defect": 10,
+      "source": "all",
+      "detected": "275 missing spend cells after the join (dark weeks + omitted rows)",
+      "action": "filled with 0 explicitly \u2014 a dark week is zero spend, not missing data"
+    },
+    {
+      "defect": 14,
+      "source": "pipeline",
+      "detected": "all six sources reconciled onto one Monday week index",
+      "action": "week derived in a single function; pandas.resample('W') never used"
+    }
+  ],
+  "reconciliation": [
+    {
+      "channel": "linear_tv",
+      "ingested": 12599999.94,
+      "truth": 12600000.000000004,
+      "rel_diff": -4.761905098954835e-09
+    },
+    {
+      "channel": "meta_social",
+      "ingested": 8099999.98,
+      "truth": 8100000.000000001,
+      "rel_diff": -2.4691358622577454e-09
+    },
+    {
+      "channel": "youtube",
+      "ingested": 7200000.0,
+      "truth": 7200000.0,
+      "rel_diff": 0.0
+    },
+    {
+      "channel": "ctv",
+      "ingested": 6299999.97,
+      "truth": 6300000.000000001,
+      "rel_diff": -4.761904951125856e-09
+    },
+    {
+      "channel": "search_brand",
+      "ingested": 5400000.000001,
+      "truth": 5400000.0,
+      "rel_diff": 1.8522971206241183e-13
+    },
+    {
+      "channel": "amazon_retail",
+      "ingested": 5399999.829999999,
+      "truth": 5400000.000000001,
+      "rel_diff": -3.148148181261839e-08
+    }
+  ],
+  "rows": 208,
+  "columns": [
+    "week",
+    "search_brand_spend",
+    "search_impression_share",
+    "search_is_censored",
+    "youtube_spend",
+    "meta_social_spend",
+    "meta_impressions",
+    "meta_ctr",
+    "meta_reach_daily_sum",
+    "ctv_spend",
+    "ctv_impressions",
+    "ctv_reach",
+    "amazon_retail_spend",
+    "amazon_impressions",
+    "amazon_sales14d",
+    "linear_tv_spend",
+    "tv_grps",
+    "revenue",
+    "settled"
+  ]
+}
