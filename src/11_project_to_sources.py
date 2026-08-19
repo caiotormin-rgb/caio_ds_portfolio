@@ -3,7 +3,7 @@
 Each export mimics what a practitioner actually receives from that platform:
 real field names, units, grains and week definitions, per
 reference/platform-data-specs.md. Fourteen defects are planted deliberately;
-they are documented in reference/dgp-spec.md and detected in notebooks/02_eda.ipynb.
+they are documented in reference/dgp-spec.md and reviewed in notebooks/01_eda.ipynb.
 
 Nothing here invents a field name. Where a spec was unverifiable (The Trade Desk,
 Xandr) the platform was not used.
