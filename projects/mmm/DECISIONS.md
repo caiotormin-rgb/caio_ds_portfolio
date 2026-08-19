@@ -1017,3 +1017,30 @@ problem that survives a careful analyst.
 `pandas.resample("W")` is never called, so no source drifts a day against Google
 Ads' Monday grid. Asserted, not assumed.
 
+## 2026-08-18 — Phase 3 CLOSED: features built, 04-data-prep rewritten as a log
+`src/13_features.py` → `model_frame.csv` (208 x 17, no missing values).
+
+**Caio corrected a bad framing:** Claude presented dark weeks as a problem
+needing a decision. They are expected, designed, and desirable — they are the
+identifying variation Meridian was rejected for lacking. What Claude conflated
+was dark weeks existing (correct) with derived *exposure* columns being NaN
+during them (also correct — there is no CPM in a week with no spend). Since D11
+fixed spend as the model input, it has no consequence. A non-issue presented as
+a finding.
+
+**Defaults taken, per Caio:**
+- Holidays as a **count**, not flags — some weeks carry two.
+- `settled` **flagged, rows retained**; include/exclude decided in `05`.
+- Censored impression share **dropped** — 13 censored weeks in a non-model variable.
+
+**The load-bearing feature decision is what was NOT built.** Adstock and
+saturation are **model parameters, not features**. Engineering
+`tv_spend_adstocked` would pre-commit to a decay rate the model is meant to
+estimate — and `03` established this data cannot reveal carryover on its own.
+Building it in would disguise an assumption as a feature. This is the single
+most common MMM mistake and the reason feature engineering is unusually small
+here.
+
+**PHASE 3 COMPLETE.** Phase 4 (`05-analysis-plan`) is unblocked, and must be
+written and committed **before any model is fit**.
+
