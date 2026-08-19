@@ -23,12 +23,12 @@ Hand-rolled, fit by nonlinear least squares (`scipy`), intervals by bootstrap.
 - **Saturation:** Hill, α and κ estimated per channel.
 - **Baseline:** 2 Fourier harmonics + linear trend + `holiday_count` + `holiday_retail_count`.
 
-**Specification is deliberately correct** specification deliberately correct: geometric adstock + Hill + log
+**The specification is deliberately correct**: geometric adstock + Hill + log
 outcome is exactly how the data was generated, and also what every open-source
 MMM tool defaults to. **Recovery is therefore an upper bound, not a realistic
 expectation, and `07-evaluation.md` must say so.**
 
-**Frequentist, not Bayesian** frequentist with bootstrap intervals. `03` established that this data cannot
+**Frequentist, not Bayesian.** `03` established that this data cannot
 corroborate carryover. A prior would supply an answer and the posterior would
 look confident; a bootstrap interval simply comes back wide, which is the honest
 picture of what the data knows.
@@ -36,11 +36,11 @@ picture of what the data knows.
 ## Controls
 
 `category_demand` — built as a genuine confounder, driving both the outcome and
-media planning. **Fit with and without** reporting the span, reporting the span.
+media planning. **Fit with and without it**, reporting the span between the two.
 
 ## Sample
 
-**202 settled weeks.** The final 6 are excluded settled weeks only: Amazon conversions restate
+**202 settled weeks.** The final 6 are excluded: Amazon conversions restate
 for 42 days and Meta's last 2 weeks run ~28% light. This is what a real refresh
 does, and the rule is fixed here so it cannot be mistaken for cherry-picking.
 
@@ -53,9 +53,7 @@ At 4.06% incremental signal this rule **will refuse to recommend on some
 channels**. That is the honest outcome, and stating it now means a null reads as
 discipline rather than failure.
 
-## Constraints tiered by how media is bought
-
-Tiered by how media is genuinely bought:
+## Constraints — tiered by how media is actually bought
 
 | Channel | Max shift | Rationale |
 |---|---:|---|
@@ -63,7 +61,7 @@ Tiered by how media is genuinely bought:
 | Meta, YouTube, CTV, branded search, Amazon | **±40%** | bought in-flight |
 
 Total budget held constant. **Branded search is included and the optimizer may
-act on it** branded search stays in the optimiser — if its effect is near zero, the recommendation is to cut it.
+act on it** — if its effect is near zero, the recommendation is to cut it.
 `09` carries the real-world caveat without softening the finding.
 
 ## Validation no simulated media channel with its own spend
@@ -73,11 +71,11 @@ recovery against the answer key**. Predictive fit here is mostly seasonality: a
 model can forecast revenue well while getting every channel's ROI wrong, which is
 precisely MMM's failure mode.
 
-## What would make us abandon this approach after the dataset audit
+## What would make us abandon this approach
 
 1. **Branded search returns a confidently positive ROI.** The model is inventing
    effects, which disqualifies every other estimate it produced.
-2. **The channel ranking flips** across CV folds or across the the reported span bounds.
+2. **The channel ranking flips** across CV folds or across the with/without-control span.
 
 Both are checkable before any recommendation is written.
 

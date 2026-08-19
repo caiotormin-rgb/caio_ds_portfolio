@@ -7,7 +7,7 @@
 ## Specification
 
 `log(revenue) ~ baseline + Σ βᶜ · Hill(Adstock(spendᶜ))`, fit on **202 settled
-weeks** settled weeks only.
+weeks** — the unsettled tail is excluded.
 
 **Two-stage**, as Robyn and most production MMMs are built: an outer optimiser
 searches the 18 nonlinear transform parameters; given those, coefficients are
@@ -19,7 +19,7 @@ nonlinear search to 18 parameters rather than 33 on 202 rows.
 | Carryover | Geometric adstock, θ ∈ [0, 0.95], truncated at 12 weeks |
 | Saturation | Hill, α ∈ [0.5, 3.0], κ anchored to median adstocked spend |
 | Baseline | 2 Fourier harmonics + linear trend + holiday count + retail-holiday count |
-| Control | `category_demand`; **fit with and without** reporting the span |
+| Control | `category_demand`; **fit with and without**, span reported |
 | Estimation | Nonlinear least squares (L-BFGS-B, 3 restarts), non-negative media |
 | Intervals | **Residual** block bootstrap, 120 replicates, 13-week blocks |
 
@@ -36,7 +36,7 @@ nonlinear search to 18 parameters rather than 33 on 202 rows.
 ## Specification is deliberately correct
 
 Geometric adstock + Hill + log outcome is **exactly how the data was generated**
-specification deliberately correct. It is also what every open-source MMM tool defaults to, so this is standard
+It is also what every open-source MMM tool defaults to, so this is standard
 practice rather than a shortcut — but it means **recovery here is an upper bound,
 not a realistic expectation.** A real advertiser's response is not literally Hill.
 

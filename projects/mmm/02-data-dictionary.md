@@ -1,7 +1,7 @@
 # 02 — Data dictionary
 *CRISP-DM Phase 2: Data Understanding. Cap: table only — no prose.*
 
-> **STATUS:** WRITTEN (rebuilt for Robyn after the dataset audit)
+> **STATUS:** WRITTEN
 > **Blocked by:** nothing
 > **Done when:** ✅ every column in the modelling table has a definition and a unit
 
