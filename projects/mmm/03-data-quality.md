@@ -5,6 +5,15 @@
 > **Blocked by:** nothing
 > **Done when:** ✅ completeness, sufficiency, patterns and an explicit "what this rules out"
 >
+>
+> **ROLE CHANGED (D13).** This memo assesses **Robyn's `dt_simulated_weekly`**,
+> which was the candidate modelling dataset when it was written. It is no longer
+> that — the project now generates its own data. Nothing here is retracted: every
+> figure was measured and remains true of that dataset. **Its role is now the
+> evidence that justified simulating**, and the closing section states that
+> conclusion. A second readiness pass on the generated data follows in
+> `notebooks/02_eda.ipynb` once it exists.
+>
 > Written from the reads in `notebooks/01_eda.ipynb`. Sections 1 and 5 of that
 > notebook were Claude-drafted at Caio's request; everything else is his,
 > captured during the EDA interview of 2026-08-18.
@@ -89,3 +98,43 @@ consistent lift weekly correlation cannot see.
 2. Does `newsletter` enter the model, and on which side of the D10 bounds?
 3. Holiday features: count or per-holiday flags? Four weeks carry two holidays,
    so a flag discards information. Reformation Day (2017) is n=1.
+
+---
+
+## Conclusion — why this dataset was not used
+
+The problems above are not tidiness issues. Two of them are fatal to the
+deliverable, and neither can be modelled away:
+
+**1. There is almost nothing to model.** Seasonality alone explains 80.7% of
+revenue; all five channels together add 2.6 percentage points. Every interval
+would be wide, and a reallocation built on that is a recommendation nobody can
+act on.
+
+**2. The strongest non-media variable is undecidable.** `competitor_sales_B`
+correlates 0.92 with revenue, and the data cannot distinguish confounder from
+mediator from seasonality proxy. Robyn's own documentation says competitor sales
+*should* carry a negative coefficient and provides a mechanism to force it; the
+bundled data produces **+0.99**, near-unit elasticity — the signature of category
+demand, not competition. That contradiction is
+[an open issue](https://github.com/facebookexperimental/Robyn/issues/1073) in
+Robyn's tracker with no maintainer answer.
+
+**3. Nothing can be validated.** True parameters are unpublished, so an estimated
+ROI cannot be scored against anything. Combined with (1) and (2), the project
+would have produced a number with no defence.
+
+**Decision (D13/D14):** generate the dataset from a pre-registered DGP with a
+known answer key. The measurements above are the justification, and they make the
+case better than an assertion would — three candidates audited on identification
+criteria, each failure diagnosed to a cause.
+
+**What carries forward** as design requirements for the DGP, from the reads above:
+- Seasonality must be controlled before any correlation is believed, and it is
+  specified as smooth terms rather than dummies.
+- Carryover cannot be read from raw cross-correlation in seasonal data, so decay
+  must be *set* and *recovered*, never inferred from a lag plot.
+- Media collinearity must be present and non-trivial — Robyn's VIF of 1.03–1.05
+  is unrealistically clean.
+- The signal level must be set deliberately, not discovered: 8–10% incremental,
+  against Robyn's 2.6pp.
