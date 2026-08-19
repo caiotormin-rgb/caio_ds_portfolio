@@ -1,5 +1,5 @@
 """STALE — written against the Meridian columns (Channel0-4, conversions).
-D8 switched the project to Robyn. The holiday logic is reusable; the brand
+the dataset audit switched the project to Robyn. The holiday logic is reusable; the brand
 index and reach/frequency blocks reference columns that no longer exist.
 Do not run. Rewrite or retire before use.
 """

@@ -1,7 +1,7 @@
 # 01 — Data sources
 *CRISP-DM Phase 2: Data Understanding. Cap: 500w.*
 
-> **STATUS:** WRITTEN — rewritten for the simulated dataset (D13/D14)
+> **STATUS:** WRITTEN — rewritten for the simulated dataset simulated dataset
 > **Blocked by:** nothing
 > **Done when:** ✅ every source has owner, grain, coverage, licence and a reproducible access path
 

@@ -6,7 +6,7 @@
 > **Done when:** ✅ completeness, sufficiency, patterns and an explicit "what this rules out"
 >
 >
-> **ROLE CHANGED (D13).** This memo assesses **Robyn's `dt_simulated_weekly`**,
+> **ROLE CHANGED simulated dataset.** This memo assesses **Robyn's `dt_simulated_weekly`**,
 > which was the candidate modelling dataset when it was written. It is no longer
 > that — the project now generates its own data. Nothing here is retracted: every
 > figure was measured and remains true of that dataset. **Its role is now the
@@ -66,7 +66,7 @@ estimated off a small residual. It is a confounder, a mediator, or a seasonality
 proxy, and **the data cannot distinguish them.** `newsletter` has the same
 problem in miniature: +0.52 with search, ~0 with everything else, and a symmetric
 lead/lag profile peaking at zero — the signature of a common cause.
-*Fork resolved at D10: fit both ways and report the span.*
+*Fork resolved at the reported span: fit both ways and report the span.*
 
 **2. Out-of-home takes 61.9% of budget and is weakest by every measure** — raw
 correlation +0.095, at or below zero under all four seasonality treatments,
@@ -89,13 +89,13 @@ consistent lift weekly correlation cannot see.
   draws a decay curve in seasonal data; deseasonalised, every lag profile is
   noise. The data does not decide this — the specification will, and `05` must
   say so.
-- **Exposure-based specification.** Tested and rejected at D11 on evidence.
+- **Exposure-based specification.** Tested and rejected at the spend-not-exposure decision on evidence.
 
 ## Open questions for Phase 3
 
 1. Is `ooh_S` one channel or a bucket? Nothing here answers it, and the
    recommendation reads very differently either way.
-2. Does `newsletter` enter the model, and on which side of the D10 bounds?
+2. Does `newsletter` enter the model, and on which side of the the reported span bounds?
 3. Holiday features: count or per-holiday flags? Four weeks carry two holidays,
    so a flag discards information. Reformation Day (2017) is n=1.
 
@@ -124,7 +124,7 @@ Robyn's tracker with no maintainer answer.
 ROI cannot be scored against anything. Combined with (1) and (2), the project
 would have produced a number with no defence.
 
-**Decision (D13/D14):** generate the dataset from a pre-registered DGP with a
+**Decision simulated dataset:** generate the dataset from a pre-registered DGP with a
 known answer key. The measurements above are the justification, and they make the
 case better than an assertion would — three candidates audited on identification
 criteria, each failure diagnosed to a cause.

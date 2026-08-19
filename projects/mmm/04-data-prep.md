@@ -39,7 +39,7 @@ Sunday-ending and would misalign against Google Ads by one day.
 | Rate recomputation | Every rate recomputed as `Σnumerator / Σdenominator` after rollup. Never the mean of daily rates |
 | Reach | **Never summed.** Generated and carried at weekly grain only; retained as a diagnostic, not a model input |
 | Zero vs missing | Amazon **omits** zero-activity rows. Reindex to the full week grid and fill with 0 — explicitly, with the count logged |
-| Spend basis | Spend for all five paid channels (D11). Exposure retained for diagnostics only |
+| Spend basis | Spend for all five paid channels spend, not exposure. Exposure retained for diagnostics only |
 | Holidays | US federal calendar → per-week count plus flags for the retail-relevant subset. Count, not binary, because some weeks carry two |
 
 ## Defect handling — 14 planted, detection reported honestly
@@ -114,7 +114,7 @@ Total spend per channel against the generating truth:
 |---|---|---|
 | Calendar | `sin1 cos1 sin2 cos2 trend` | 2 harmonics, pre-committed on a degrees-of-freedom argument |
 | Holidays | `holiday_count`, `holiday_retail_count` | **count, not flags** — some weeks carry two, which a binary flag discards |
-| Control | `category_demand` | D10 fits with and without |
+| Control | `category_demand` | the reported span fits with and without |
 | Media | 6 raw spend columns | **raw. See below** |
 | Outcome | `revenue`, `settled` | 6 unsettled weeks flagged, rows retained |
 
@@ -128,7 +128,7 @@ them in pre-commits to a decay rate the model is supposed to learn — and
 `03-data-quality.md` established that this data cannot reveal carryover on its
 own. Fixing it here would disguise an assumption as a feature.
 
-Also excluded: exposure and CPM columns (diagnostics only per D11, and undefined
+Also excluded: exposure and CPM columns (diagnostics only per the spend-not-exposure decision, and undefined
 in dark weeks by nature), and impression share (13 censored weeks in a variable
 that is not a model input).
 

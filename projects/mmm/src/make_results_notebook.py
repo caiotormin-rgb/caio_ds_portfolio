@@ -20,7 +20,7 @@ md("""
 
 Every number below is compared to the truth that generated the data. No real
 engagement can do this, which is the whole reason the dataset was simulated
-(D13) after three real candidates each failed on identification.
+simulated dataset after three real candidates each failed on identification.
 
 **Read `05-analysis-plan.md` first.** It was committed before any model existed,
 so nothing here was chosen after seeing results.
@@ -140,7 +140,7 @@ md("""
 ## 4. Did it find the planted null?
 Branded search was built with a true effect of **exactly zero** — the
 incrementality test. A model that invents an effect here is disqualified under
-the abandon criteria in `05` (D22).
+the abandon criteria in `05` the pre-registered abandon criteria.
 """)
 code("""
 bs = d[d.channel == "Branded search"].iloc[0]
@@ -160,14 +160,14 @@ print(f"point estimate      : {bs.est_mroi:.2f}   (truth 0.00)")
 print(f"90% interval        : [{bs.lo:.2f}, {bs.hi:.2f}]")
 print(f"interval excludes 0 : {bool(bs.lo > 0)}")
 print()
-print("D22 abandon criterion — 'branded search returns a confidently positive ROI':")
+print("the pre-registered abandon criteria abandon criterion — 'branded search returns a confidently positive ROI':")
 print(f"  TRIGGERED" if bs.lo > 0 else "  NOT triggered — the interval includes zero, so the model is not confident")
 """)
 read()
 
 md("""
 ## 5. Does the decision rule permit a recommendation?
-`05` fixed the rule before any model was fit (D18):
+`05` fixed the rule before any model was fit the pre-registered decision rule:
 
 > Recommend moving budget from A to B **only if** B's marginal ROI exceeds A's
 > **and the bootstrap interval on the difference excludes 1.0.**
@@ -212,7 +212,7 @@ ax.scatter(cmp.without_control, yv, s=55, color=ORANGE, label="without control",
 ax.scatter(cmp.truth, yv, s=70, color=INK, marker="D", label="truth", zorder=4)
 ax.set_yticks(yv); ax.set_yticklabels(cmp.channel); ax.invert_yaxis()
 ax.legend(frameon=False, fontsize=8.5, ncol=3, labelcolor=INK2); ax.grid(axis="y", visible=False)
-tidy(ax, "What the control decision costs (D10 / D23)",
+tidy(ax, "What the control decision costs reporting the span",
      "the span is what an analyst without an answer key would have to report", "")
 ax.set_xlabel("Marginal ROI"); plt.tight_layout(); plt.show()
 

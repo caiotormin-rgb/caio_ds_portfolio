@@ -9,7 +9,7 @@ Caio's cell stays his.
 
 Regeneration is NON-DESTRUCTIVE: filled "Your read" text is carried forward.
 
-Dataset: Robyn dt_simulated_weekly (D8). All reference URLs HTTP-checked.
+Dataset: Robyn dt_simulated_weekly after the dataset audit. All reference URLs HTTP-checked.
 """
 import os
 import nbformat as nbf
@@ -64,7 +64,7 @@ OBS = [
  ],
  [  # 7 controls
   "**`competitor_sales_B` at r = 0.92 versus 0.44 for the best channel.** Enter it as-is and media is estimated off a small residual.",
-  "**[MODELING]** Confounder, mediator, or seasonality proxy - the data cannot decide. Google's guidance: mediators must not be used as controls. **D10 resolves this by fitting both ways and reporting the span.**",
+  "**[MODELING]** Confounder, mediator, or seasonality proxy - the data cannot decide. Google's guidance: mediators must not be used as controls. **the reported span resolves this by fitting both ways and reporting the span.**",
   "The complete list of non-media variables is `competitor_sales_B`, `newsletter`, DE holidays and time. No price, no distribution, no macro. Nothing else exists.",
  ],
  [  # 8 carryover

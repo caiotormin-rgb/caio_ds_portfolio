@@ -14,7 +14,7 @@ A pre-registered abandon criterion fired. That the headline recommendation
 happens to be *correct* does not rescue it — and explaining why is the point of
 this memo.
 
-## Against the decision rule (D18)
+## Against the decision rule the pre-registered decision rule
 
 > Recommend moving budget from A to B only if B's marginal ROI exceeds A's **and
 > the bootstrap interval on the difference excludes 1.0.**
@@ -35,7 +35,7 @@ The rule also did its main job: it **refused** on 27 of 30 pairs. At 4.06%
 incremental signal, most channel comparisons are not resolvable, and pre-committing
 to the threshold means those silences read as discipline rather than omission.
 
-## Against the abandon criteria (D22) — **TRIGGERED**
+## Against the abandon criteria the pre-registered abandon criteria — **TRIGGERED**
 
 > Abandon if branded search returns a **confidently positive** ROI.
 
@@ -73,14 +73,14 @@ That is the finding: **MMM alone cannot detect an invented effect.** The missing
 instrument is an incrementality experiment — a geo holdout on branded search
 would settle in weeks what this model gets confidently wrong.
 
-## What the control decision cost (D23)
+## What the control decision cost reporting the span
 
 Fit with and without `category_demand`: R² 0.8248 vs 0.8202. Estimates move, but
 the ranking is stable across both — the span is not what disqualifies this model.
 
 ## Limitations
 
-- **Specification is deliberately correct** (D1). Recovery here is an **upper
+- **Specification is deliberately correct** specification deliberately correct. Recovery here is an **upper
   bound**; a real advertiser's response is not literally Hill.
 - **Levels are inflated 2–3×** and must never be quoted.
 - **Carryover recovered on 2 of 6 channels.** YouTube's θ collapsed to 0.00

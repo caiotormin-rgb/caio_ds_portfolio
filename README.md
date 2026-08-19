@@ -42,7 +42,7 @@ chart fastest. Momentum matters more than starting with the flagship.
 **Next action:** Caio works through `projects/mmm/notebooks/01_eda.ipynb` and
 fills the ten "Your read" cells. Nothing else moves.
 
-**D8 — dataset switched to Robyn `dt_simulated_weekly`** after a readiness audit
+**the dataset audit — dataset switched to Robyn `dt_simulated_weekly`** after a readiness audit
 rejected the Meridian sample (no flighting, 1.07x seasonality, no spend-outcome
 signal at national or geo grain). 208 weeks, real named channels, 3.31x
 seasonality, 4/5 channels flighted, all five sloping upward.
@@ -50,7 +50,7 @@ seasonality, 4/5 channels flighted, all five sloping upward.
 **Phase 2 artifacts:** `00` closed · `01` written · `02` written ·
 `03` ready to write from Caio's nine interview reads.
 
-**D12 — scope held.** Dataset stays Robyn. A better real dataset
+**Scope held.** Dataset stays Robyn. A better real dataset
 (`case_study_data`, 13 channels, 1.7x the media signal) and a ground-truth
 simulator (AMSS) were found and **deliberately parked** — switching would
 invalidate the nine EDA reads that carry Caio's judgment.

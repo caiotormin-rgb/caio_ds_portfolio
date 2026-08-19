@@ -48,7 +48,7 @@ def main():
     f["holiday_count"] = counts
     f["holiday_retail_count"] = retail
 
-    # --- control (D10: the model is fit both with and without this)
+    # --- control (the reported span: the model is fit both with and without this)
     f["category_demand"] = truth.category_demand.round(6)
 
     # --- media: RAW SPEND ONLY. Adstock and saturation are Phase 4 parameters.
@@ -59,7 +59,7 @@ def main():
     f["revenue"] = d.revenue.round(2)
     f["settled"] = d.settled
 
-    # exposure columns are diagnostics only (D11) and are NOT carried into the
+    # exposure columns are diagnostics only spend, not exposure and are NOT carried into the
     # model frame. They stay in modelling_table.csv for the readout.
 
     assert f.notna().all().all(), "model frame must have no missing values"
@@ -71,13 +71,13 @@ def main():
     print(f"  calendar   : sin1 cos1 sin2 cos2 trend            (5)")
     print(f"  holidays   : holiday_count, holiday_retail_count  (2)  "
           f"— {int((f.holiday_count>1).sum())} weeks carry 2+, which a binary flag would lose")
-    print(f"  control    : category_demand                      (1)  — D10 fits both ways")
+    print(f"  control    : category_demand                      (1)  — the reported span fits both ways")
     print(f"  media      : {len(CHANNELS)} raw spend columns              ({len(CHANNELS)})")
     print(f"  outcome    : revenue, settled                     (2)")
     print()
     print("NOT built, deliberately:")
     print("  adstock / saturation  -> Phase 4. Parameters are estimated, not assumed.")
-    print("  exposure & CPM        -> diagnostics only (D11); undefined in dark weeks by nature.")
+    print("  exposure & CPM        -> diagnostics only spend, not exposure; undefined in dark weeks by nature.")
     print("  impression share      -> dropped. 13 censored weeks in a non-model variable.")
     print(f"  settled: {int((~f.settled).sum())} unsettled weeks flagged, rows retained.")
 

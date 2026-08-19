@@ -8,8 +8,8 @@ Two-stage, which is how Robyn and most production MMMs are actually built:
 That keeps the nonlinear search to 18 parameters instead of 33 on 202 rows, and
 it is far more stable than throwing everything at one optimiser.
 
-Per D10/D23 the model is fit twice — with and without `category_demand` — and the
-span is reported. Intervals come from a moving-block bootstrap (D2/D16).
+Per the reported span/the reported span the model is fit twice — with and without `category_demand` — and the
+span is reported. Intervals come from a moving-block bootstrap frequentist with bootstrap intervals.
 
 Writes data/simulated/model_results.json
 """
@@ -158,7 +158,7 @@ def block_resample_residuals(resid, rng):
 
 def main():
     f = pd.read_csv(D / "model_frame.csv", parse_dates=["week"])
-    fit_df = f[f.settled].reset_index(drop=True)       # D3/D17: 202 settled weeks
+    fit_df = f[f.settled].reset_index(drop=True)       # 202 settled weeks — the unsettled tail is excluded
     print(f"fitting on {len(fit_df)} settled weeks of {len(f)}\n")
 
     results = {}
@@ -200,7 +200,7 @@ def main():
                 v = np.array(boots[c][k])
                 results[tag]["estimates"][c][f"{k}_lo"] = float(np.percentile(v, 5))
                 results[tag]["estimates"][c][f"{k}_hi"] = float(np.percentile(v, 95))
-        # keep the raw draws: D18 needs the interval on the DIFFERENCE between
+        # keep the raw draws: the pre-registered decision rule needs the interval on the DIFFERENCE between
         # two channels' marginal ROI, which cannot be built from separate intervals
         results[tag]["draws"] = {c: boots[c]["mroi"] for c in CH}
         results[tag]["n_boot"] = int(len(boots[CH[0]]["roi"]))
