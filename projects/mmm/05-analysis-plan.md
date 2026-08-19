@@ -1,23 +1,88 @@
 # 05 — Analysis / measurement plan
 *CRISP-DM Phase 4: Modeling. Cap: 400w.*
 
-> **STATUS:** NOT STARTED
-> **Blocked by:** `04-data-prep.md`
-> **Done when:** written, dated, and committed BEFORE any model is fit — check the git log to prove it
-
-> **PRE-REGISTRATION.** Written and committed before modeling begins.
-> Date written: _____
-> Commit: _____
+> **PRE-REGISTRATION.** Written and committed **before any model is fit**.
+> Date written: **2026-08-18**. The commit that adds this file is the proof —
+> no modelling code exists in the repository at that point.
+>
+> **STATUS:** WRITTEN · **Blocked by:** nothing · **Done when:** ✅ committed before the first fit
 
 ## Primary metric
+
+**Marginal ROI per channel**, at observed spend. Not average ROI — the ground
+truth already shows why: linear TV has the **highest average ROI (5.03) and the
+lowest non-zero marginal ROI (1.20)**. An analyst optimising on average ROI funds
+the channel that should be cut.
+
 ## Method
+
+Hand-rolled, fit by nonlinear least squares (`scipy`), intervals by bootstrap.
+
+- **Outcome:** `log(revenue)`. The DGP is multiplicative.
+- **Adstock:** geometric, θ estimated per channel, bounded [0, 0.95], max lag 12 weeks.
+- **Saturation:** Hill, α and κ estimated per channel.
+- **Baseline:** 2 Fourier harmonics + linear trend + `holiday_count` + `holiday_retail_count`.
+
+**Specification is deliberately correct** (D1): geometric adstock + Hill + log
+outcome is exactly how the data was generated, and also what every open-source
+MMM tool defaults to. **Recovery is therefore an upper bound, not a realistic
+expectation, and `07-evaluation.md` must say so.**
+
+**Frequentist, not Bayesian** (D2). `03` established that this data cannot
+corroborate carryover. A prior would supply an answer and the posterior would
+look confident; a bootstrap interval simply comes back wide, which is the honest
+picture of what the data knows.
+
 ## Controls
-_And the justification for each. A control that is actually a mediator must be named and excluded._
+
+`category_demand` — built as a genuine confounder, driving both the outcome and
+media planning. **Fit with and without** (D10), reporting the span.
+
+## Sample
+
+**202 settled weeks.** The final 6 are excluded (D3): Amazon conversions restate
+for 42 days and Meta's last 2 weeks run ~28% light. This is what a real refresh
+does, and the rule is fixed here so it cannot be mistaken for cherry-picking.
 
 ## Decision rule — fixed in advance
-_"We recommend reallocation if ___." State the threshold before seeing results._
 
-## Optimizer constraints (per D2 / 00-brief)
-_Channel floors and caps, max year-over-year shift. Fixed here, never tuned after seeing output._
+> Recommend moving budget from channel A to B **only if** B's estimated marginal
+> ROI exceeds A's **and the bootstrap interval on the difference excludes 1.0**.
 
-## What would make us abandon this approach
+At 4.06% incremental signal this rule **will refuse to recommend on some
+channels**. That is the honest outcome, and stating it now means a null reads as
+discipline rather than failure.
+
+## Constraints (D2 / D5)
+
+Tiered by how media is genuinely bought:
+
+| Channel | Max shift | Rationale |
+|---|---:|---|
+| Linear TV | **±20%** | upfront commitments lock months ahead |
+| Meta, YouTube, CTV, branded search, Amazon | **±40%** | bought in-flight |
+
+Total budget held constant. **Branded search is included and the optimizer may
+act on it** (D6) — if its effect is near zero, the recommendation is to cut it.
+`09` carries the real-world caveat without softening the finding.
+
+## Validation (D7)
+
+Rolling-origin cross-validation with an expanding window, **plus parameter
+recovery against the answer key**. Predictive fit here is mostly seasonality: a
+model can forecast revenue well while getting every channel's ROI wrong, which is
+precisely MMM's failure mode.
+
+## What would make us abandon this approach (D8)
+
+1. **Branded search returns a confidently positive ROI.** The model is inventing
+   effects, which disqualifies every other estimate it produced.
+2. **The channel ranking flips** across CV folds or across the D10 bounds.
+
+Both are checkable before any recommendation is written.
+
+## Reporting (D9)
+
+Bounds are reported as an analyst without ground truth would have to — then the
+answer key reveals which end was correct, and by how much. That quantifies what
+the ambiguity actually costs.

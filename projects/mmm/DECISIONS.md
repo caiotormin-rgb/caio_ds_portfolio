@@ -1044,3 +1044,28 @@ here.
 **PHASE 3 COMPLETE.** Phase 4 (`05-analysis-plan`) is unblocked, and must be
 written and committed **before any model is fit**.
 
+## 2026-08-18 — Phase 4 — 05-analysis-plan PRE-REGISTERED (D15-D23)
+Nine decisions taken in sequence, then written and committed **before any
+modelling code exists**. Verified: no `src/2*.py` at commit time.
+
+| # | Decision | Chosen |
+|---|---|---|
+| D15 | Specification | Fit the true form (geometric adstock + Hill + log), **disclose that recovery is an upper bound** |
+| D16 | Model family | Frequentist, hand-rolled, bootstrap intervals — a prior would make carryover look better-determined than `03` says it is |
+| D17 | Unsettled weeks | Excluded. Fit on 202 of 208 |
+| D18 | Decision rule | Marginal ROI gap **and** bootstrap interval excludes 1.0 |
+| D19 | Constraints | Tiered: linear TV ±20% (upfronts), digital ±40% |
+| D20 | Branded search | **In the optimizer.** If its effect is ~0, the recommendation is to cut it |
+| D21 | Validation | Rolling-origin CV **plus parameter recovery** |
+| D22 | Abandon criteria | Branded search returning confidently positive, or ranking instability |
+| D23 | Bounds | Report the span, **then reveal which end was right** using the answer key |
+
+**The rule most likely to bite:** D18 will refuse to recommend on some channels
+at 4.06% incremental signal. Pre-committing to it means a null result reads as
+discipline rather than failure — which is the entire reason to fix a threshold
+before seeing output.
+
+**D19 creates the most interesting constraint:** linear TV is the channel to cut
+*and* the least movable. "The model says cut TV 40%, your upfronts allow 20% this
+year, here is what that costs" is a real finding rather than a textbook optimum.
+
