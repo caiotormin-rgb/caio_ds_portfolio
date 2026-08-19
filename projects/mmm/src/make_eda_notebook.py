@@ -98,7 +98,7 @@ md("""
 gives you prompts, reading, and my first pass. The conclusions go in the
 **Your read** cells and they are yours - argue with mine.
 
-Anything that becomes a *project decision* goes to `DECISIONS.md`, not here.
+Anything that becomes a *project decision* goes to `05-analysis-plan.md`, not here.
 
 > **Why this dataset.** The Meridian sample was audited and rejected: no
 > flighting, 1.07x seasonality, and no visible spend-to-outcome relationship at
@@ -487,7 +487,7 @@ md("""
 ## Where this leaves us
 
 Fill in once the sections above are worked through. Anything that turns into a
-project decision goes into `DECISIONS.md` - not here.
+project decision goes into `05-analysis-plan.md` - not here.
 
 **Questions this raised that the data can't answer:**
 

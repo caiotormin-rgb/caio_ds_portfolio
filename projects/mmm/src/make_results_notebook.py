@@ -228,7 +228,7 @@ md("""
 ## Where this leaves us
 
 Fill in once the sections above are worked through. Anything that becomes a
-project decision goes to `DECISIONS.md`, and the conclusions belong in
+project decision goes to `05-analysis-plan.md`, and the conclusions belong in
 `07-evaluation.md`.
 """)
 

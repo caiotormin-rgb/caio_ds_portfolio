@@ -2,7 +2,7 @@
 
 > **PRE-REGISTRATION.** Committed **before** any data is generated. The git log
 > is the proof. No parameter here may be changed after seeing model output; if
-> one must change, it is a new dated entry in `DECISIONS.md` explaining why.
+> one must change, it is a new dated entry in `05-analysis-plan.md` explaining why.
 
 **Written:** 2026-08-18 · **Seed:** 20260818 · **Market:** US · **Currency:** USD
 

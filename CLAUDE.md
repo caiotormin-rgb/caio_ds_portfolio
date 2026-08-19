@@ -76,10 +76,10 @@ He has ADHD. A menu of open questions stalls him. So:
 
 ## Log it
 
-Every judgment call goes in the project's `DECISIONS.md` **in his words, with
-his reasoning** — including options he rejected and why. That file is not
-bookkeeping. It becomes the "How I approached this" section of the writeup,
-which is the part that actually shows instincts. Most portfolios don't have it.
+Record only the decisions that **changed the project** — a reversal, a scope
+call, a threshold fixed in advance. Put them where they belong: the analysis plan,
+the model card, the readout. **Do not maintain a running decision log.** It was
+tried and it accreted into noise faster than it produced value.
 
 If you catch yourself having made a judgment call he didn't make, flag it
 explicitly and hand it back.

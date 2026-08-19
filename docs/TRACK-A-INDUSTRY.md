@@ -81,12 +81,12 @@ from scratch — saying so in `09` reads as operational maturity.
 
 ---
 
-## `DECISIONS.md` — runs across all six phases
+## `05-analysis-plan.md` — runs across all six phases
 Judgment calls in Caio's words, logged as they happen, including rejected options.
 
 ## CRISP-DM is a cycle, not a line
 Phases loop — especially Data Understanding ↔ Data Preparation, and Evaluation
-back to Business Understanding. **Record the loops in `DECISIONS.md`.** A project
+back to Business Understanding. **Record the loops in `05-analysis-plan.md`.** A project
 that shows one honest backtrack ("the join failed, so I redefined the grain")
 is more credible than one that pretends the path was straight.
 

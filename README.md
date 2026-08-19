@@ -23,7 +23,7 @@ readout, activation one-pager. **Track B (personal interest)**
 projects are fluid and lightly academic — a question, a stated prior, and an
 honest account of where he was wrong.
 Every project is readable at three depths and names the person who acts on it.
-Each project carries a `DECISIONS.md` logging the judgment calls in Caio's own
+Each project carries a `05-analysis-plan.md` logging the judgment calls in Caio's own
 words; that file becomes the "How I approached it" section of the writeup.
 
 **Build order: 1 → 2 → 3.** Project 1 is first because it produces a beautiful
@@ -61,7 +61,7 @@ invalidate the nine EDA reads that carry Caio's judgment.
 find the right data → ingest → prepare → **Caio analyzes it himself, with help**
 → review and discuss → *then* modeling strategy.
 Modeling questions are OUT OF BOUNDS until that discussion has happened.
-Every decision gets an explicit, logged entry in `DECISIONS.md` — no implicit calls.
+Every decision gets an explicit, logged entry in `05-analysis-plan.md` — no implicit calls.
 
 **Note:** the other three drafted projects (`pix-adoption`, `public-mmm`,
 `did-it-work`) are still Claude's disposable drafts and are all civic — Caio has

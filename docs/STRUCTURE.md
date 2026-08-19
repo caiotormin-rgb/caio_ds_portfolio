@@ -16,10 +16,10 @@ Written before work starts. In Caio's words. If work doesn't sharpen it, it's ou
 ### 2. Hard chart budget
 Set in the brief. Replace, never append.
 
-### 3. `DECISIONS.md`
-Judgment calls in Caio's words, logged as they happen — including rejected
-options. Showing you considered a fancier method and chose not to use it is a
-stronger signal than using it.
+### 3. Record only decisions that changed the project
+A reversal, a scope call, a threshold fixed in advance. They live in the
+artifact they belong to — the analysis plan, the model card, the readout.
+**No running decision log.**
 
 ### 4. The three-layer rule
 Every project readable at three depths; a reader stopping at any layer gets
@@ -48,7 +48,6 @@ Senior analysts are identified by this section. Juniors omit it.
 ```
 projects/<slug>/
   BRIEF.md / 00-brief.md    depending on track
-  DECISIONS.md
   data/     raw/ (gitignored) + cached/ (small, committed)
   src/      numbered scripts, run top to bottom
   outputs/  charts, never over budget

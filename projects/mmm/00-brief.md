@@ -55,7 +55,7 @@ direction of the reallocation hold.
    new channels, not a restarted artifact chain.
 3. It lives in **`07-evaluation.md` plus at most one chart** in the readout.
 4. **If the national model turns out under-identified** and geo has to become
-   the primary model, that is an explicit re-decision logged in `DECISIONS.md`
+   the primary model, that is an explicit re-decision logged in `05-analysis-plan.md`
    with the reason — never a silent drift into scope.
 
 ## Explicitly out of scope

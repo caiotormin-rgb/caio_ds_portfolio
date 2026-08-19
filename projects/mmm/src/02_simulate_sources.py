@@ -21,7 +21,7 @@ Three groups:
 
 Deliberately NOT built: a simulated paid-search channel. It would carry zero
 true effect on Google's conversions, so any estimated ROI for it would be noise.
-See DECISIONS.md.
+See 05-analysis-plan.md.
 """
 from pathlib import Path
 import importlib.util

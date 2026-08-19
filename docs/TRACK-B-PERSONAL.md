@@ -8,7 +8,7 @@ voice lives. Track A's artifact chain would strangle them.
 ## What stays (non-negotiable — these are the ADHD guardrails, not formality)
 - One locked central question. Written down before starting.
 - A hard chart budget.
-- A `DECISIONS.md`.
+- A `05-analysis-plan.md`.
 - An honest limitations passage, wherever it naturally falls.
 
 ## What goes

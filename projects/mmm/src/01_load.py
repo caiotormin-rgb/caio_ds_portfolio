@@ -11,7 +11,7 @@ Import the loaders from a notebook:
 
 SOURCE: Robyn's `dt_simulated_weekly`, converted once to CSV with `pyreadr`.
 No R is involved anywhere — the RData was read in Python and the artefact
-deleted. See DECISIONS.md D8 for why this replaced the Meridian sample.
+deleted. See 05-analysis-plan.md D8 for why this replaced the Meridian sample.
 
 `data/audit/` holds the rejected Meridian candidates. They are evidence for the
 data-readiness assessment in `01`/`03`, not modelling inputs.

@@ -29,7 +29,7 @@ def main():
     truth = pd.read_csv(D / "truth" / "weekly_truth.csv", parse_dates=["week"])
     f = pd.DataFrame({"week": d.week})
 
-    # --- calendar: 2 Fourier harmonics, pre-committed in DECISIONS on a df argument
+    # --- calendar: 2 Fourier harmonics, pre-committed in the analysis plan on a df argument
     t = np.arange(len(d))
     for k in (1, 2):
         f[f"sin{k}"] = np.sin(2 * np.pi * k * t / 52.18).round(6)
