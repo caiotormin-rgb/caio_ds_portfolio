@@ -72,10 +72,10 @@ consistent lift weekly correlation cannot see.
 
 - **Year-over-year framing**, given partial years at both ends.
 - **`events` as a control**, at n=1.
-- **Point estimates as headline numbers.** With 2.6pp of incremental signal,
-  intervals will be wide and quoting a point estimate would be dishonest.
-- **Claiming the response curves as an empirical finding.** With no visible
-  curvature, the Hill shape comes from the functional form, not the data.
+- **Point estimates as headline numbers.** At 2.6pp of incremental signal,
+  intervals will be wide and a point estimate would be dishonest.
+- **Response curves as an empirical finding.** With no visible curvature, the
+  Hill shape comes from the functional form, not the data.
 - **Any carryover length presented as evidence.** Raw cross-correlation always
   draws a decay curve in seasonal data; deseasonalised, every lag profile is
   noise. The data does not decide this — the specification will, and `05` must
@@ -84,8 +84,8 @@ consistent lift weekly correlation cannot see.
 
 ## Open questions for Phase 3
 
-1. Is `ooh_S` one channel or a bucket? Nothing in the data answers this, and the
+1. Is `ooh_S` one channel or a bucket? Nothing here answers it, and the
    recommendation reads very differently either way.
 2. Does `newsletter` enter the model, and on which side of the D10 bounds?
-3. Holiday features: count, or per-holiday flags? Four weeks carry two holidays,
-   so a binary flag discards information. Reformation Day (2017 only) is n=1.
+3. Holiday features: count or per-holiday flags? Four weeks carry two holidays,
+   so a flag discards information. Reformation Day (2017) is n=1.

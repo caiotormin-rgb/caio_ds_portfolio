@@ -845,7 +845,7 @@ they are exactly the drift Caio warned about in his first message. Claude was
 generating optionality instead of braking.
 
 ## 2026-08-18 — Phase 2 CLOSED: 03-data-quality written
-Written from the nine interview reads plus measured figures. 592 prose words,
+Written from the nine interview reads plus measured figures. 612 prose words,
 inside the 600 cap. Provenance stated in the header: notebook sections 1 and 5
 were Claude-drafted at Caio's request, everything else is his.
 
