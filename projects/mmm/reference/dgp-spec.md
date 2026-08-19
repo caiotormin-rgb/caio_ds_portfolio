@@ -187,9 +187,28 @@ The two pending specs must be verified before their exports are written. **Field
 names will not be invented** — that is the exact tell the platform research
 warned about.
 
-## Defects — reassigned to the new sources
+## Defects — REVISED after the Amazon/DV360 research
 
-Unchanged in kind. Sources remapped: the duplicated row moves to the DSP export,
-the currency-unit block stays on the TV spreadsheet, the monthly-invoice
-reconciliation stays on TV, and the not-week-aligned grain moves from print to
-the Amazon export. Count remains 12.
+The research surfaced better defects than the ones originally invented: these are
+documented platform behaviours rather than plausible-sounding faults. **14 planted.**
+
+| # | Defect | Source | Class |
+|---|---|---|---|
+| 1 | `ctr` on 0-100 while Google is 0-1 | Meta | unit mismatch |
+| 2 | Cost in micros, unconverted | Google Ads ×2 | unit |
+| 3 | All numerics serialised as strings | Meta | type |
+| 4 | Daily rows requiring rollup | Meta, Amazon | grain |
+| 5 | **Reach non-additive** — summing daily overstates weekly 30-70% | Meta, DV360 | grain trap |
+| 6 | Impression share clipped, `0.0999` sentinel | Search | encoding |
+| 7 | Fractional conversions | Search | type expectation |
+| 8 | Monthly invoice ≠ sum of weekly airings | TV sheet | reconciliation |
+| 9 | A block of rows in a different currency unit | TV sheet | unit |
+| 10 | **Zero-activity rows omitted entirely** — daily row counts fluctuate, and a naive join cannot distinguish "no spend" from "missing" | Amazon | absence vs zero |
+| 11 | **Last ~6 weeks of conversions understated** — 42-day restatement horizon (traffic settles d+3, conversions at d+1/7/28 on the interaction date) | Amazon | vintage |
+| 12 | **`Grand Total` row after a blank line, misaligned to the header** — naive `read_csv` ingests it as data | DV360 | file structure |
+| 13 | **Reach delivered in a separate file** from impressions, because DV360 cannot return both in one report type | DV360 | structural |
+| 14 | **Week-boundary misalignment** — `pandas.resample("W")` defaults to Sunday-ending while Google Ads `segments.week` is Monday-start, so one source lands a day off | pipeline | silent corruption |
+
+Defects 10-14 replace weaker invented ones. Each is a documented behaviour with a
+citation in `platform-data-specs.md`, so the EDA notebook is demonstrating
+detection of **real** failure modes rather than ones we made up to be findable.

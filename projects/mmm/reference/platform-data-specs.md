@@ -171,3 +171,71 @@ Blog-level, **value ranges only, not authoritative**:
 [Strike Social Q1 2025](https://strikesocial.com/blog/q1-2025-youtube-ads-benchmark-report/)
 
 All URLs verified HTTP 200.
+
+---
+
+# Addendum — Amazon Ads API and DV360 (CTV)
+
+Researched 2026-08-18. Amazon's live docs render client-side, so field content was
+verified against a raw markdown mirror and **independently corroborated** against
+a separate transcription and Airbyte's production connector manifest — all three
+agree field-for-field. DV360 was verified against the **machine-readable API
+discovery document**, which carries no transcription risk.
+
+## Amazon Ads — what a real export looks like
+
+**Three distinct API surfaces, three naming conventions.** v3 unified reporting
+(`camelCase`), legacy DSP reporting (`camelCase` with `14d` baked into the metric
+name), and Marketing Stream (`snake_case`, hourly). Mixing them is a tell.
+
+| Rule | Detail |
+|---|---|
+| **No weekly grain exists** | `timeUnit` accepts only `DAILY` or `SUMMARY`. **A week column anywhere in a sponsored-ads or DSP file is fake.** The sole exception is the separate MMM data feed, which is weekly and must end Saturday or Sunday |
+| **v3 renamed everything** | `sales14d`, `purchases14d`, `unitsSoldClicks14d`. The v2 names `attributedSales14d` / `attributedConversions14d` **do not exist in v3** — the single most common giveaway |
+| **ACOS/ROAS are not universal** | Native only on `spTargeting`, `spSearchTerm`, `spAdvertisedProduct`. **Not on `spCampaigns`.** An ACOS column on a campaign-level file is fake |
+| **No CPM at all** on SP/SB/SD | Amazon does not return it for sponsored ads |
+| **SB/SD use a different vocabulary** | No window suffixes. `purchases` / `purchasesClicks` / `purchasesViews` instead of `purchases14d` |
+| **Retention asymmetry** | SP 95 days, **SB 60**, SD 65. Real SB history files are shorter — a cheap authenticity signal |
+| **Zero-activity rows are omitted** | Not zero, not null — **absent**. Daily row counts fluctuate |
+| **Restatement horizon is 42 days** | Traffic settles by d+3; conversions restate at 1, 7 and 28 days *after the conversion*, and conversions are reported on the interaction date. So a 14-day window settles at **d+42** |
+| Delivery | Async job → presigned S3 URL (~1h TTL) → **gzipped JSON array**, no header, no totals row |
+
+Constraints: `purchases1d ≤ 7d ≤ 14d ≤ 30d` (same for sales/units); `SameSku ≤ total`;
+`acosClicks14d × roasClicks14d = 1` exactly; `clickThroughRate` is a **fraction**
+(0.0042 = 0.42%); viewability fields do not exist before 2019-10-01.
+
+## DV360 — chosen over Trade Desk / Xandr
+
+Only major DSP with a fully public machine-readable contract. The others require
+partner credentials, so their field names could not be verified — and inventing
+them is the exact failure mode we are avoiding.
+
+| Rule | Detail |
+|---|---|
+| **Enums are request-side only** | You request `METRIC_IMPRESSIONS`; the CSV header says `Impressions`. Enum names in a header are fake |
+| **Reach lives in a separate report type** | `REACH` / `UNIQUE_REACH_AUDIENCE`. It is **structurally impossible** to have reach in the same file as impressions and quartiles. Practitioners run two queries and join |
+| **The CSV is not rectangular** | Header → data rows → **a physical blank line** → a **`Grand Total` row that is misaligned** (wider or narrower than the header) → a metadata footer starting `Report Date`. Every real consumer truncates at the blank line. **A pristine CSV is the tell** |
+| Legacy video naming | `METRIC_RICH_MEDIA_VIDEO_COMPLETIONS` → `Complete Views (Video)`. There is no `METRIC_VIDEO_COMPLETIONS` |
+| **Completion Rate = Complete Views / Starts** | Not over impressions |
+| Currency | Reports are **decimal currency** with `(Advertiser Currency)` suffixes. **Micros appear only in the entity-management API**, never in a report file |
+| **No household reach field** | Household accounting is folded into **co-viewed** variants, and co-viewing is **YouTube-CTV only**. (Amazon DSP is the platform that exposes explicit `householdReach`) |
+| CTV app names | Render as **`[App Name - Store (#)]`** for the top 9 CTV stores. Plain strings are a tell |
+| Hierarchy | Partner → Advertiser → **Media Plan (= Campaign ID)** → Insertion Order → Line Item. `FILTER_CAMPAIGN` does not exist |
+| Suppression | Small demo/reach cells return **blank**, not 0 and not null |
+
+CTV values, US 2021-2024 *(blog-level)*: CPM $15-50 depending on platform and
+year, trending down from ~$42 to ~$25-31; **completion rate 93-98%**; viewability
+90%+; frequency 3-8 over a 4-week flight; co-view factor 1.2-1.6.
+
+## Week definitions — the cross-source trap
+
+| Source | Native weekly? | Boundary |
+|---|---|---|
+| Google Ads | yes, `segments.week` | **Monday-start** |
+| DV360 | yes, `FILTER_WEEK` | Monday-Sunday (non-YouTube) |
+| Meta Ads Insights | **no** | analyst rolls up |
+| Amazon sponsored/DSP | **no** | analyst rolls up |
+| Amazon MMM feed | yes | **Saturday or Sunday ending** |
+
+**`pandas.resample("W")` defaults to Sunday-ending**, which misaligns against
+Google Ads by one day. That is a realistic pipeline flaw worth planting.
