@@ -1,0 +1,82 @@
+[
+  {
+    "id": 2,
+    "defect": "cost_micros unconverted",
+    "source": "google_ads_search_brand"
+  },
+  {
+    "id": 6,
+    "defect": "impression share clipped to 0.0999",
+    "source": "google_ads_search_brand"
+  },
+  {
+    "id": 7,
+    "defect": "fractional conversions",
+    "source": "google_ads_search_brand"
+  },
+  {
+    "id": 1,
+    "defect": "ctr as percent 0-100",
+    "source": "meta"
+  },
+  {
+    "id": 3,
+    "defect": "numerics as JSON strings",
+    "source": "meta"
+  },
+  {
+    "id": 4,
+    "defect": "daily rows needing rollup",
+    "source": "meta"
+  },
+  {
+    "id": 5,
+    "defect": "reach non-additive across days",
+    "source": "meta"
+  },
+  {
+    "id": 11,
+    "defect": "last 2 weeks understated (settling)",
+    "source": "meta"
+  },
+  {
+    "id": 10,
+    "defect": "duplicated row",
+    "source": "dv360"
+  },
+  {
+    "id": 12,
+    "defect": "misaligned Grand Total row",
+    "source": "dv360"
+  },
+  {
+    "id": 13,
+    "defect": "reach in a separate file",
+    "source": "dv360"
+  },
+  {
+    "id": 4,
+    "defect": "daily rows needing rollup",
+    "source": "amazon"
+  },
+  {
+    "id": 10,
+    "defect": "zero-activity rows omitted entirely",
+    "source": "amazon"
+  },
+  {
+    "id": 11,
+    "defect": "42-day conversion restatement",
+    "source": "amazon"
+  },
+  {
+    "id": 8,
+    "defect": "monthly invoice != sum of airings",
+    "source": "tv"
+  },
+  {
+    "id": 9,
+    "defect": "currency-unit block (14 rows /1000)",
+    "source": "tv"
+  }
+]

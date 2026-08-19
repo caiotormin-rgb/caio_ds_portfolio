@@ -960,3 +960,30 @@ reading average ROI funds it further; the correct answer is to cut it. That
 inversion is the entire case for marginal analysis, and the model either recovers
 it or does not.
 
+## 2026-08-18 — Phase 3 — six source exports generated
+`src/11_project_to_sources.py` → `data/simulated/exports/` (9 files, ~570KB).
+**16 defect instances across 5 sources**, catalogued in `_planted_defects.json`.
+
+**Verified present in the files:**
+- Google Ads search: `ctr` as ratio (0.042), `cost_micros` (23788665690),
+  **fractional conversions** (1122.825), and the **`0.0999` sentinel** — with no
+  value strictly between 0 and 0.0999, which is the actual API behaviour.
+- Meta: **daily** rows, every numeric a **JSON string**, `ctr` as **percent**
+  (1.7945 vs Google's 0.042), last 2 weeks understated.
+- DV360: header of display names, then a **blank line**, then a **`Grand Total`
+  row 5 fields wide against a 10-field header**, then a metadata footer. Reach in
+  a **separate file**, as the platform requires.
+- Amazon: 1,155 rows against 1,456 possible days — **zero-activity rows omitted
+  entirely**, so absence must be distinguished from zero.
+- TV agency: `dd/mm/yyyy` dates, and a 14-row block where `gross_cost` is
+  1000x smaller than its neighbours.
+
+**Defect 14 is deliberately not in any file.** Week-boundary misalignment is
+introduced *by the analyst* if ingest uses `pandas.resample("W")`, which defaults
+to Sunday-ending against Google Ads' Monday weeks. It can only be detected by
+checking, not by inspecting a source.
+
+**One defect failed to plant on the first run:** the impression-share sentinel.
+The beta(7,3) draw never dipped below the 0.1 floor, so no `0.0999` values
+existed. Caught by asserting the count rather than assuming. Fixed.
+
