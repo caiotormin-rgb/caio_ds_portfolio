@@ -3,6 +3,46 @@
 Caio's judgment calls, logged as they happen. Rejected options matter as much
 as chosen ones. CRISP-DM loops get recorded here too.
 
+---
+
+## INDEX — what each D-number is
+
+| ID | Decision | Outcome |
+|---|---|---|
+| **D1** | Dataset, first choice | Meridian national — *later reversed* |
+| **D2** | National first, geo as a bounded second step | agreed; geo later ruled dead |
+| **D3** | Channel naming convention | names assigned, evidence graded — *obsolete after D8* |
+| **D4** | Which simulated sources to add | holidays, brand index, reach/frequency |
+| **D5** | EDA before augmentation | agreed, then overridden |
+| **D6** | Augmentation built | holidays real; brand index a deliberate mediator |
+| **D7** | Simulated search channel | **dropped** — no recoverable effect |
+| **D8** | Switch to Robyn `dt_simulated_weekly` | reverses D1 |
+| **D9** | Holiday market | DE — *superseded by D13* |
+| **D10** | Report headline numbers as **ranges**, not points | structural commitment |
+| **D11** | **Spend**, not exposure, for all channels | exposure tested, rejected on evidence |
+| **D12** | Hold scope — stay on Robyn | parked a better dataset and AMSS |
+| **D13** | **Simulate the dataset ourselves**; market → **US** | supersedes D9 |
+| **D14** | Modern digital channel mix; **CTV** under-invested | 6 channels |
+
+### Phase 4 — the nine, asked in conversation as "Decision 1–9 of 9"
+
+| ID | Asked as | Decision | Outcome |
+|---|---|---|---|
+| **D15** | 1 | Specification | fit the true form, disclose it as an upper bound |
+| **D16** | 2 | Model family | frequentist, hand-rolled, bootstrap intervals |
+| **D17** | 3 | Unsettled weeks | excluded — fit on 202 of 208 |
+| **D18** | **4** | **Decision rule** | move budget only if the mROI gap's interval excludes 1.0 |
+| **D19** | 5 | Optimiser constraints | tiered — TV ±20%, digital ±40% |
+| **D20** | 6 | Branded search in the optimiser | yes, it may be cut |
+| **D21** | 7 | Validation | rolling-origin CV **+ parameter recovery** |
+| **D22** | **8** | **Abandon criteria** | planted null missed, or ranking unstable — **FIRED** |
+| **D23** | 9 | Bounds | report the span, then reveal which end was right |
+
+**Superseded:** D1 by D8 · D3 by D8 · D9 by D13
+**Fired:** D22 — the model is disqualified, see `07-evaluation.md`
+
+---
+
 Format:
 ## [date] — Phase N — the decision
 **Options on the table:**
