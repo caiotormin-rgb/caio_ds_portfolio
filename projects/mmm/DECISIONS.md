@@ -934,3 +934,29 @@ two unrelated observations sharing a budget.
 **Blocking generation:** Amazon Ads API and DSP export field specs are unverified.
 Research agent running. **Field names will not be invented.**
 
+## 2026-08-18 — Phase 3 — truth generated; two calibration amendments
+`src/10_simulate_truth.py` run. Ground truth in `data/simulated/truth/`.
+
+**Amendment 2 to the DGP spec, both recorded not hidden:**
+1. **Signal target 8-10% → 4-6%.** Aspirational originally; against a 3x seasonal
+   swing, 9% needs media driving ~half of revenue. The real retailer we audited
+   achieved 4.4pp, Robyn 2.6pp. **Achieved 4.06%.**
+2. **CTV beta 0.145 → 0.320.** At the registered value CTV's marginal ROI (1.65)
+   fell below Meta's (2.39), so the designed "fund CTV" story did not hold.
+   Scenario-design correction — no model has been run, so nothing is fitted to output.
+
+**Two bugs found and fixed during generation:**
+- Marginal ROI was computed with the *unscaled* beta while contributions used the
+  scaled one, producing large negative nonsense (-1306 for TV). Caught because the
+  numbers were obviously impossible.
+- Calibration initially measured incremental R² using `log1p(spend)`, which
+  understates signal that is genuinely present. That is misspecification, not
+  absence — calibrating to it would have inflated the true media effect. Now
+  measured against the true transforms.
+
+**All six designed roles hold.** The headline: **linear TV has the highest
+average ROI (5.03) and the lowest non-zero marginal ROI (1.20).** An analyst
+reading average ROI funds it further; the correct answer is to cut it. That
+inversion is the entire case for marginal analysis, and the model either recovers
+it or does not.
+

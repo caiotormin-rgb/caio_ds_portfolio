@@ -212,3 +212,51 @@ documented platform behaviours rather than plausible-sounding faults. **14 plant
 Defects 10-14 replace weaker invented ones. Each is a documented behaviour with a
 citation in `platform-data-specs.md`, so the EDA notebook is demonstrating
 detection of **real** failure modes rather than ones we made up to be findable.
+
+---
+
+# AMENDMENT 2 — 2026-08-18, during calibration
+
+Two parameters changed while calibrating. Recorded rather than quietly applied,
+because the original values are committed at `85ea4fa`/`ce906f1`.
+
+**1. Signal target lowered from 8-10% to 4-6% incremental R².**
+The original band was aspirational. Measured against a 3x seasonal swing, hitting
+9% requires media to drive roughly half of all revenue — implausible, and it would
+have made the modelling task artificially easy. **Reference points from the audit:
+the real retailer achieved 4.4pp, Robyn 2.6pp.** The revised band is realistic and
+still ~1.6x Robyn. **Achieved: 0.0406.**
+
+**2. CTV beta raised 0.145 → 0.320.**
+At the pre-registered value CTV's marginal ROI came out at 1.65, below Meta's
+2.39 — so the designed "fund CTV" recommendation did not hold. The operating
+point (0.28, deep on the steep part) was right; the coefficient was too small for
+that to translate into the highest marginal return. **This is a scenario-design
+correction, not a fit to model output — no model has been run.**
+
+## Calibration record
+
+| Parameter | Value | How chosen |
+|---|---|---|
+| `beta_scale` | 1.25 | searched to hit the target band |
+| `noise_sigma` | 0.18 | searched jointly with beta_scale |
+| achieved incremental R² | **0.0406** | measured against the **true** transforms, not `log1p(spend)` — a naive spec understates genuinely present signal, and calibrating to it would have inflated the true effect |
+| media / revenue | 9.1% | emergent, not targeted |
+| seasonality peak/trough | 3.00x | as specified |
+
+## Ground truth as generated
+
+| Channel | Share | Avg ROI | **Marginal ROI** | Designed role | Holds? |
+|---|---:|---:|---:|---|---|
+| CTV | 14% | 2.62 | **3.63** | under-invested → fund | ✅ highest marginal |
+| Meta social | 18% | 3.18 | 2.39 | solid performer | ✅ |
+| YouTube | 16% | 3.64 | 2.16 | mid | ✅ |
+| Amazon retail | 12% | 3.42 | 1.67 | seasonal decoy | ✅ |
+| **Linear TV** | **28%** | **5.03** | **1.20** | over-invested → cut | ✅ **the trap** |
+| Branded search | 12% | **0.00** | **0.00** | the dud | ✅ exactly zero |
+
+**Linear TV is the result worth having:** it has the *highest average ROI of any
+channel* and the *lowest non-zero marginal ROI*. An analyst reading average ROI
+concludes TV is the best performer and funds it further. The correct answer is to
+cut it. That single inversion is the case for marginal analysis, and the model
+either finds it or does not.

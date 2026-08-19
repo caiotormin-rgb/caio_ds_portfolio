@@ -1,0 +1,83 @@
+{
+  "seed": 20260818,
+  "n_weeks": 208,
+  "start": "2021-01-04",
+  "beta_scale": 1.25,
+  "noise_sigma": 0.18,
+  "achieved_incremental_r2": 0.04058569135847201,
+  "target_incremental_r2": [
+    0.04,
+    0.06
+  ],
+  "seasonality_peak_trough": 3.0,
+  "total_media_spend": 45000000.00000001,
+  "total_revenue": 492455192.48808616,
+  "channels": {
+    "linear_tv": {
+      "theta": 0.7,
+      "alpha": 1.6,
+      "kappa": 56499.67315121478,
+      "beta": 0.23125,
+      "budget_share": 0.28,
+      "total_spend": 12600000.000000004,
+      "dark_weeks": 0.4567307692307692,
+      "true_roi": 5.028999901610575,
+      "true_marginal_roi": 1.198811364479564
+    },
+    "meta_social": {
+      "theta": 0.4,
+      "alpha": 1.6,
+      "kappa": 72278.11301238948,
+      "beta": 0.1875,
+      "budget_share": 0.18,
+      "total_spend": 8100000.000000001,
+      "dark_weeks": 0.3557692307692308,
+      "true_roi": 3.1794202053899236,
+      "true_marginal_roi": 2.3926623258670894
+    },
+    "youtube": {
+      "theta": 0.45,
+      "alpha": 1.5,
+      "kappa": 49063.28256249337,
+      "beta": 0.15,
+      "budget_share": 0.16,
+      "total_spend": 7200000.0,
+      "dark_weeks": 0.2548076923076923,
+      "true_roi": 3.6423232752525,
+      "true_marginal_roi": 2.161897728963893
+    },
+    "ctv": {
+      "theta": 0.55,
+      "alpha": 1.7,
+      "kappa": 227220.8980183235,
+      "beta": 0.4,
+      "budget_share": 0.14,
+      "total_spend": 6300000.000000001,
+      "dark_weeks": 0.30288461538461536,
+      "true_roi": 2.6220029144834145,
+      "true_marginal_roi": 3.627916233154029
+    },
+    "search_brand": {
+      "theta": 0.1,
+      "alpha": 1.8,
+      "kappa": 29369.578627880233,
+      "beta": 0.0,
+      "budget_share": 0.12,
+      "total_spend": 5400000.0,
+      "dark_weeks": 0.02403846153846154,
+      "true_roi": 0.0,
+      "true_marginal_roi": 0.0
+    },
+    "amazon_retail": {
+      "theta": 0.25,
+      "alpha": 1.4,
+      "kappa": 23703.040832517778,
+      "beta": 0.1,
+      "budget_share": 0.12,
+      "total_spend": 5400000.000000001,
+      "dark_weeks": 0.20673076923076922,
+      "true_roi": 3.41767563045631,
+      "true_marginal_roi": 1.6743696829504633
+    }
+  }
+}
