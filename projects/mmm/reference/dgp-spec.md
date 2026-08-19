@@ -105,3 +105,91 @@ The dataset is synthetic and stated as such. The EDA notebook demonstrates the
 
 Geo panel · reach/frequency modelling · competitive response dynamics ·
 population-state simulation (that is AMSS, parked) · multiple products.
+
+---
+
+# AMENDMENT 1 — 2026-08-18, before any data generated
+
+Recorded as a dated amendment rather than a silent edit. The original above is
+committed at `85ea4fa`; nothing has been generated, so pre-registration integrity
+is intact. **Reason for amendment:** Caio asked for a modern digital channel mix.
+
+## What changed and why
+
+**1. Channel mix modernised — 5 channels become 6.** Print and generic display
+are dropped; CTV, YouTube and Amazon retail media are added. The original mix was
+a 2015-era plan, which dates the project wrongly for a 2021-2024 window.
+
+**2. The dud becomes branded search.** Previously a generic zero-effect channel.
+Branded search tests the same thing — does the model invent an effect — but poses
+a question marketing teams genuinely argue about: when someone searches your brand
+and clicks your ad, would they have converted anyway? It is always-on, smooth, and
+correlates beautifully with revenue, so it is *supposed* to look like a top
+performer. A model that correctly returns near-zero incremental effect is a real
+result, not a synthetic curiosity.
+
+**3. The seasonal decoy becomes Amazon retail media.** Retail media genuinely
+spikes in Q4 (Prime Day, Black Friday, holiday), so a Q4-loaded decoy is realistic
+rather than contrived — and it is a channel that barely existed in 2019.
+
+**4. The under-invested channel is CTV, not social.** This makes the
+recommendation coherent instead of arbitrary: *linear TV is over-invested while
+the audience moved to streaming.* That is the defining media shift of the chosen
+window. "Cut TV, fund Meta" would be two unrelated observations sharing a budget.
+
+**5. Deliberate collinearity moves from TV-print to linear TV <-> CTV, rho ~ 0.4.**
+The original placement was realistic but analytically pointless — nobody cares
+whether TV and print can be separated. **Separating linear from CTV *is* the
+recommendation**, so the model's hardest task now coincides with the decision's
+hardest question. If it succeeds, that is a genuine result; if it fails, that is
+an honest and reportable failure of the kind a real engagement hits.
+**Risk to monitor:** too much correlation makes them unidentifiable rather than
+merely hard. Achieved adstock-pair separability is recorded post-generation using
+the same diagnostic that corrected the search-adstock error.
+
+## Revised channels
+
+| Channel | Budget | θ | α | Operating pt | β | Role |
+|---|---:|---:|---:|---:|---:|---|
+| **Linear TV** | 28% | **0.70** | 1.6 | **2.5 past knee** | 0.075 | over-invested → *cut* |
+| **Meta social** | 18% | 0.40 | 1.6 | 0.8 | 0.055 | solid performer |
+| **YouTube** | 16% | 0.45 | 1.5 | 1.1 | 0.045 | mid; carries reach & frequency |
+| **CTV / streaming** | 14% | 0.55 | 1.7 | **0.35 steep** | 0.050 | under-invested → *fund* |
+| **Search — brand** | 12% | **0.10** | 1.8 | 0.9 | **0.000** | **the incrementality test** |
+| **Amazon retail media** | 12% | 0.25 | 1.4 | 1.2 | 0.030 | **seasonal decoy**, 60% Q4 |
+
+Six channels, ~18 media parameters against 208 weeks. Seven would breach the
+observations-to-parameter guideline.
+
+## Revised media plans
+
+| Channel | Dark weeks | Planning note |
+|---|---:|---|
+| Linear TV | ~45% | Flighted bursts. **Correlated with CTV, rho ~ 0.4** |
+| CTV | ~30% | Flighted, correlated with linear TV |
+| YouTube | ~25% | Mostly on |
+| Meta social | ~35% | Flighted |
+| Search — brand | **~2%** | Always-on, smooth. AC(1) target ~ +0.7 |
+| Amazon retail | ~20% | **60% of annual spend in Q4** — the decoy mechanism |
+
+## Revised source projection
+
+| Channel | Simulated source | Verified? |
+|---|---|---|
+| Search — brand | Google Ads API `keyword_view` | ✅ `platform-data-specs.md` |
+| YouTube | Google Ads API, video campaign | ✅ `platform-data-specs.md` |
+| Meta social | Meta Ads Insights | ✅ `platform-data-specs.md` |
+| CTV / streaming | Programmatic DSP export | ⏳ research pending |
+| Amazon retail media | Amazon Ads API | ⏳ research pending |
+| Linear TV | Agency spreadsheet — no API exists | n/a, by construction |
+
+The two pending specs must be verified before their exports are written. **Field
+names will not be invented** — that is the exact tell the platform research
+warned about.
+
+## Defects — reassigned to the new sources
+
+Unchanged in kind. Sources remapped: the duplicated row moves to the DSP export,
+the currency-unit block stays on the TV spreadsheet, the monthly-invoice
+reconciliation stays on TV, and the not-week-aligned grain moves from print to
+the Amazon export. Count remains 12.

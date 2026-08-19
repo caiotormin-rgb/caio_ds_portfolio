@@ -905,3 +905,32 @@ Friday, Independence Day, Memorial Day, Labor Day.
 carryover / immediate / dud). Nothing generated until it is fixed and the DGP
 parameters are committed to `04-data-prep.md`.
 
+## 2026-08-18 — D14: modern digital channel mix; CTV is the under-invested channel
+**Caio:** "can we do a more digital modern MMM, with video, mobile, etc" ->
+"ok ctv it is."
+Recorded as **Amendment 1** to `reference/dgp-spec.md`, dated, with the original
+preserved. Nothing had been generated, so pre-registration holds.
+
+**Six channels:** linear TV 28% (over-invested, cut), Meta social 18%, YouTube
+16%, CTV 14% (under-invested, fund), branded search 12% (β = 0), Amazon retail
+media 12% (seasonal decoy).
+
+**Three design improvements, not just cosmetics:**
+1. **The dud becomes branded search.** Same test — does the model invent an
+   effect — but now it is the question marketing teams actually argue about.
+   Always-on, smooth, correlates beautifully with revenue, *supposed* to look
+   like a winner. Correctly returning ~zero is a real result.
+2. **The decoy becomes Amazon retail media.** Q4 concentration is genuine
+   behaviour for retail media, not a contrivance.
+3. **Collinearity moves to linear TV <-> CTV (rho ~ 0.4).** The original TV-print
+   pairing was realistic but tested nothing anyone cares about. Separating linear
+   from CTV **is** the recommendation, so the model's hardest task now coincides
+   with the decision's hardest question.
+
+**Also:** "cut linear, fund streaming" is the defining media shift of the
+2021-2024 window, which makes the reallocation a strategic finding rather than
+two unrelated observations sharing a budget.
+
+**Blocking generation:** Amazon Ads API and DSP export field specs are unverified.
+Research agent running. **Field names will not be invented.**
+
