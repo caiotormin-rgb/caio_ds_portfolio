@@ -844,3 +844,18 @@ plus second simulator proposed. Each step was individually defensible; together
 they are exactly the drift Caio warned about in his first message. Claude was
 generating optionality instead of braking.
 
+## 2026-08-18 — Phase 2 CLOSED: 03-data-quality written
+Written from the nine interview reads plus measured figures. 592 prose words,
+inside the 600 cap. Provenance stated in the header: notebook sections 1 and 5
+were Claude-drafted at Caio's request, everything else is his.
+
+**Three open questions handed to Phase 3:**
+1. Is `ooh_S` one channel or a bucket? Nothing in the data answers it, and the
+   recommendation reads very differently either way.
+2. Does `newsletter` enter the model, and on which side of the D10 bounds?
+3. Holiday features — count or per-holiday flags? Four weeks carry two holidays,
+   so a binary flag discards information; Reformation Day is n=1.
+
+**PHASE 2 COMPLETE.** `00` closed, `01`/`02`/`03` written. Phase 3 (`04-data-prep`)
+is unblocked.
+
