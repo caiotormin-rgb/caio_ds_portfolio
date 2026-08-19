@@ -862,3 +862,46 @@ were Claude-drafted at Caio's request, everything else is his.
 **PHASE 2 COMPLETE.** `00` closed, `01`/`02`/`03` written. Phase 3 (`04-data-prep`)
 is unblocked.
 
+## 2026-08-18 — D13: simulate the dataset ourselves; market switches DE -> US
+**Caio:** "let's just simulate the entire dataset, control for what we want, and
+introduce a few typical scenarios of MMM optimization" -> "can we switch to us
+instead of de".
+
+**Chose:** generate the modelling dataset from a known DGP. **Supersedes D9**
+(DE holidays) — with a simulated dataset the market is a choice, not an
+inference, and US is the more legible default for the roles being targeted.
+
+**Why this narrows rather than expands scope:**
+- It ends the dataset search permanently. Three candidates audited, each with a
+  measured identification failure; this is the terminal answer, not a fourth try.
+- It supplies the one thing no real dataset offers — **an answer key**. The
+  reallocation acquires a knowable right answer.
+- It dissolves the open problems in one move: no mislabeled control, no
+  confounder-or-mediator argument, no 2.6pp signal ceiling, no undecidable
+  carryover. Those become parameters we set.
+
+**The EDA work becomes the justification, not waste.** The narrative is "three
+datasets audited, each one's identification failure measured, therefore
+simulation with known truth." Every figure we computed is the evidence for that.
+
+**Accepted cost:** "you made up your data" is the obvious critique. Two
+mitigations, both required: the audit trail explains *why*, and realism is
+calibrated to properties we **measured** (3.31x seasonality, 51-59% dark weeks
+offline, always-on search, unit-cost CV 0.12-0.25) rather than chosen by taste.
+**Also lost:** roughly half of Caio's interview reads — the Robyn-specific ones.
+The methodological ones (seasonality must be controlled first; carryover cannot
+be read from raw correlation) survive as **design requirements for the DGP**.
+
+**Window fixed:** 2021-01-04 to 2024-12-23, **208 weeks, four complete calendar
+years** (52/52/52/52). The partial-year defect flagged in `03` simply disappears
+— we control the calendar now.
+
+**US calendar measured:** 51 holiday dates, 46 of 208 weeks affected (22.1%),
+11 distinct holidays each recurring 4-5 times. No n=1 problem, unlike DE's
+Reformation Day. Brings the retail moments that matter — Thanksgiving/Black
+Friday, Independence Day, Memorial Day, Labor Day.
+
+**Still open:** the five-scenario list (saturated / underinvested / long
+carryover / immediate / dud). Nothing generated until it is fixed and the DGP
+parameters are committed to `04-data-prep.md`.
+
